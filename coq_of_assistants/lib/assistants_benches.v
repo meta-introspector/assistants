@@ -11,127 +11,98 @@ End Global.
 
 Definition mystring := Type.
 Module Vec.
-  Parameter t : forall (T A : Set), Set.
-
+  Parameter t : forall (T A : Set), Set.  
   Module Default.
     Definition A : Set := Global.t.
   End Default.
 End Vec.
+
 Definition Vec := Vec.t.
 
 Module String.
   Definition t : Set := Global.t.
-
 End String.
 
-Module map.
-  Module  Map.
+Module  Map.
   Section Map.
     Context (K V : Set).
-    
-    Record t : Set (* := { *)
-    (*   map : ltac:(map.MapImpl K V); *)
-    (* } *).
-
+    Record t : Set. (* := { *)
   End Map.
-  End Map.
-
-  Module bool.
+End Map.
+  
+Module bool.
   Definition t : Set := bool.
 End bool.
 
-  Module u64.
-    Inductive t : Set := Make (z : Z) : t.
-  End u64.
+Module u64.
+  Inductive t : Set := Make (z : Z) : t.
+End u64.
+
 Module i64.
   Inductive t : Set := Make (z : Z) : t.
 End i64.
+
 Module f64.
   Inductive t : Set := Make (z : Z) : t.
 End f64.
 
-  Module number.
-
-    Module N.
+Module number.
+  
+  Module N.
     Inductive t : Set :=
     | PosInt (_ : u64.t)
     | NegInt (_ : i64.t)
     | Float (_ : f64.t).
-    End N.
-
-  Module  Number.
-
-  Section Number.
-    Record t : Set := {
-      n : number.N.t;
-    }.
-    
+  End N.
+  
+  Module  Number.    
+    Section Number.
+      Record t : Set := {
+          n : number.N.t;
+        }.      
+    End Number.    
   End Number.
+End number.
 
-    
-  End Number.
 
-  Module value.
+Module value.
   Module Value.
     Inductive t : Set :=
     | Null
-    | Bool (_ : bool.t)
+    | Bool   (_ : bool.t)
     | Number (_ : number.Number.t)
-    | String (_ : string.String.t)
-    |
-      Array
-      (_ : Vec.t value.Value.t vec.Vec.Default.A)
-    |
-      Object
-      (_ : map.Map.t string.String.t value.Value.t).
-    
+    | String (_ : String.t)
+    | Array  (_ : String.t (* t Vec.Default.A *))
+    | Object (_ : Map.t (* FIXME String.t t *))   
     .
     
-Module  Values.
-  Section Values.
-    Record t : Set (* := { *)
-      (*   iter : ltac:(map.ValuesImpl); *)
-      (* } *).
-    
+    Module  Values.
+      Section Values.
+        Record t : Set.
+      End Values.
+    End Values.
 
-  End Values.
-End Values.
+  End Value.
+End value.
 
 Module  Step.
-Section Step.
-  Record t : Set := {
-    endpoint : String.t;
-    method : String.t;
-    request : value.Value.t;
-    expected_response : value.Value.t;
-    save_response_to_variable :
-      Vec.t value.Value.t Vec.Default.A;
-  }.
-  
-  Definition Get_endpoint :=
-    Ref.map
-      (fun α => Some α.(endpoint))
-      (fun β α => Some (α <| endpoint := β |>)).
-  Definition Get_method :=
-    Ref.map (fun α => Some α.(method)) (fun β α => Some (α <| method := β |>)).
-  Definition Get_request :=
-    Ref.map
-      (fun α => Some α.(request))
-      (fun β α => Some (α <| request := β |>)).
-  Definition Get_expected_response :=
-    Ref.map
-      (fun α => Some α.(expected_response))
-      (fun β α => Some (α <| expected_response := β |>)).
-  Definition Get_save_response_to_variable :=
-    Ref.map
-      (fun α => Some α.(save_response_to_variable))
-      (fun β α => Some (α <| save_response_to_variable := β |>)).
-End Step.
+  Section Step.
+    Record t : Set := {
+        endpoint : String.t;
+        method : String.t;
+        request : value.Value.t;
+        expected_response : value.Value.t;
+        save_response_to_variable :
+        Vec.t value.Value.t Vec.Default.A;
+      }.
+    
+
+  End Step.
 End Step.
 
 Module  TestCase.
 Section TestCase.
-  Record t : Set := {
+  Record t : Type := {
     test_case : mystring;
     steps : Vec.t assistants_benches.Step.t Vec.Default.A;
     models : Vec.t String.t Vec.Default.A;

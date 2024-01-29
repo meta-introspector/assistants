@@ -268,7 +268,70 @@ Module anthropic.
     
   End Impl_core_fmt_Display_for_assistants_extra_anthropic_ApiError_t.
   End Impl_core_fmt_Display_for_assistants_extra_anthropic_ApiError_t.
+Module Vec.
+  Parameter t : forall (T A : Set), Set.  
+  Module Default.
+    Definition A : Set := Global.t.
+  End Default.
+End Vec.
 
+
+  Module HashMap.
+    Parameter t : Set -> Set -> Set -> Set.
+
+    Module Default.
+      Definition S : Set := Global.t.
+    End Default.
+
+    Module  Impl_K_V.
+    Section Impl_K_V.
+      Context {K V : Set}.
+
+      Definition Self : Set := t K V Default.S.
+
+      (* pub fn new() -> HashMap<K, V, RandomState> *)
+
+    End Impl_K_V.
+    End Impl_K_V.
+
+    Module  Impl_K_V_S.
+    Section Impl_K_V_S.
+      Context {K V S : Set}.
+
+      Definition Self : Set := t K V S.
+
+      (*
+      pub fn get<Q>(&self, k: &Q) -> Option<&V>
+      where
+          K: Borrow<Q>,
+          Q: Hash + Eq + ?Sized,
+      *)
+
+      (* pub fn insert(&mut self, k: K, v: V) -> Option<V> *)
+
+      (* pub fn iter(&self) -> Iter<'_, K, V> *)
+
+      (*
+      pub fn remove<Q>(&mut self, k: &Q) -> Option<V>
+      where
+          K: Borrow<Q>,
+          Q: Hash + Eq + ?Sized,
+      *)
+
+    End Impl_K_V_S.
+    End Impl_K_V_S.
+  End HashMap.
+
+Module Option.
+  Inductive t (T : Set) : Set :=
+  | None : t T
+  | Some : T -> t T.
+  Arguments None {_}.
+  Arguments Some {_}.
+End Option.
+Module bool.
+  Definition t : Set := bool.
+End bool.
 
   Module  RequestBody.
   Section RequestBody.
@@ -280,47 +343,18 @@ Module anthropic.
       stop_sequences :
         Option.t
           (Vec.t String.t Vec.Default.A);
-      top_p : core.option.Option.t f32.t;
-      top_k : core.option.Option.t i32.t;
+      top_p : Option.t f32.t;
+      top_k : Option.t i32.t;
       metadata :
-        core.option.Option.t
-          (std.collections.hash.map.HashMap.t
+        Option.t
+          (HashMap.t
             String.t
             String.t
-            std.collections.hash.map.HashMap.Default.S);
-      stream : core.option.Option.t bool.t;
+            HashMap.Default.S);
+      stream : Option.t bool.t;
     }.
     
-    Definition Get_model :=
-      Ref.map (fun α => Some α.(model)) (fun β α => Some (α <| model := β |>)).
-    Definition Get_prompt :=
-      Ref.map
-        (fun α => Some α.(prompt))
-        (fun β α => Some (α <| prompt := β |>)).
-    Definition Get_max_tokens_to_sample :=
-      Ref.map
-        (fun α => Some α.(max_tokens_to_sample))
-        (fun β α => Some (α <| max_tokens_to_sample := β |>)).
-    Definition Get_temperature :=
-      Ref.map
-        (fun α => Some α.(temperature))
-        (fun β α => Some (α <| temperature := β |>)).
-    Definition Get_stop_sequences :=
-      Ref.map
-        (fun α => Some α.(stop_sequences))
-        (fun β α => Some (α <| stop_sequences := β |>)).
-    Definition Get_top_p :=
-      Ref.map (fun α => Some α.(top_p)) (fun β α => Some (α <| top_p := β |>)).
-    Definition Get_top_k :=
-      Ref.map (fun α => Some α.(top_k)) (fun β α => Some (α <| top_k := β |>)).
-    Definition Get_metadata :=
-      Ref.map
-        (fun α => Some α.(metadata))
-        (fun β α => Some (α <| metadata := β |>)).
-    Definition Get_stream :=
-      Ref.map
-        (fun α => Some α.(stream))
-        (fun β α => Some (α <| stream := β |>)).
+
   End RequestBody.
   End RequestBody.
   
@@ -332,16 +366,6 @@ Module anthropic.
       model : String.t;
     }.
     
-    Definition Get_completion :=
-      Ref.map
-        (fun α => Some α.(completion))
-        (fun β α => Some (α <| completion := β |>)).
-    Definition Get_stop_reason :=
-      Ref.map
-        (fun α => Some α.(stop_reason))
-        (fun β α => Some (α <| stop_reason := β |>)).
-    Definition Get_model :=
-      Ref.map (fun α => Some α.(model)) (fun β α => Some (α <| model := β |>)).
   End ResponseBody.
   End ResponseBody.
   
@@ -349,54 +373,6 @@ Module anthropic.
   Section Impl_core_fmt_Debug_for_assistants_extra_anthropic_ResponseBody_t.
     Definition Self : Set := assistants_extra.anthropic.ResponseBody.t.
     
-    (*
-    Debug
-    *)
-    Definition fmt
-        (self : ref Self)
-        (f : mut_ref core.fmt.Formatter.t)
-        : M ltac:(core.fmt.Result) :=
-      let* self := M.alloc self in
-      let* f := M.alloc f in
-      let* α0 : mut_ref core.fmt.Formatter.t := M.read f in
-      let* α1 : ref str.t := M.read (mk_str "ResponseBody") in
-      let* α2 : ref str.t := M.read (mk_str "completion") in
-      let* α3 : ref assistants_extra.anthropic.ResponseBody.t := M.read self in
-      let* α4 : ref str.t := M.read (mk_str "stop_reason") in
-      let* α5 : ref assistants_extra.anthropic.ResponseBody.t := M.read self in
-      let* α6 : ref str.t := M.read (mk_str "model") in
-      let* α7 : ref assistants_extra.anthropic.ResponseBody.t := M.read self in
-      let* α8 : M.Val (ref String.t) :=
-        M.alloc
-          (borrow
-            (assistants_extra.anthropic.ResponseBody.Get_model (deref α7))) in
-      M.call
-        (core.fmt.Formatter.t::["debug_struct_field3_finish"]
-          α0
-          α1
-          α2
-          (pointer_coercion
-            "Unsize"
-            (borrow
-              (assistants_extra.anthropic.ResponseBody.Get_completion
-                (deref α3))))
-          α4
-          (pointer_coercion
-            "Unsize"
-            (borrow
-              (assistants_extra.anthropic.ResponseBody.Get_stop_reason
-                (deref α5))))
-          α6
-          (pointer_coercion "Unsize" (borrow α8))).
-    
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
-    
-    Global Instance ℐ : core.fmt.Debug.Trait Self := {
-      core.fmt.Debug.fmt := fmt;
-    }.
   End Impl_core_fmt_Debug_for_assistants_extra_anthropic_ResponseBody_t.
   End Impl_core_fmt_Debug_for_assistants_extra_anthropic_ResponseBody_t.
   
@@ -704,10 +680,7 @@ Module anthropic.
           ] in
       M.read α0.
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
+
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -811,10 +784,6 @@ Module anthropic.
           ] in
       M.read α0.
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -876,10 +845,6 @@ Module anthropic.
           α4
           (pointer_coercion "Unsize" (borrow α6))).
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -908,10 +873,6 @@ Module anthropic.
       let* α1 : String.t := M.call (α0 (borrow error)) in
       M.pure (assistants_extra.anthropic.ApiError.InvalidRequestError α1).
     
-    Global Instance AssociatedFunction_from :
-      Notations.DoubleColon Self "from" := {
-      Notations.double_colon := from;
-    }.
     
     Global Instance ℐ :
       core.convert.From.Trait Self
@@ -940,10 +901,7 @@ Module anthropic.
       let* α1 : String.t := M.call (α0 (borrow error)) in
       M.pure (assistants_extra.anthropic.ApiError.InvalidRequestError α1).
     
-    Global Instance AssociatedFunction_from :
-      Notations.DoubleColon Self "from" := {
-      Notations.double_colon := from;
-    }.
+
     
     Global Instance ℐ :
       core.convert.From.Trait Self (T := serde_json.error.Error.t) := {
@@ -971,10 +929,6 @@ Module anthropic.
       let* α1 : String.t := M.call (α0 (borrow error)) in
       M.pure (assistants_extra.anthropic.ApiError.InvalidRequestError α1).
     
-    Global Instance AssociatedFunction_from :
-      Notations.DoubleColon Self "from" := {
-      Notations.double_colon := from;
-    }.
     
     Global Instance ℐ :
       core.convert.From.Trait Self (T := reqwest.error.Error.t) := {
@@ -1063,7 +1017,7 @@ Module anthropic.
                 α5
                 (borrow α9)
                 ((Integer.of_Z 91) : u32.t)
-                core.option.Option.None) in
+                Option.None) in
           M.alloc α10 in
         M.alloc tt
       else
@@ -1182,7 +1136,7 @@ Module anthropic.
                 α5
                 (borrow α9)
                 ((Integer.of_Z 98) : u32.t)
-                core.option.Option.None) in
+                Option.None) in
           M.alloc α10 in
         M.alloc tt
       else
@@ -1242,21 +1196,21 @@ Module anthropic.
   Definition call_anthropic_api_stream
       (prompt : String.t)
       (max_tokens_to_sample : i32.t)
-      (model : core.option.Option.t String.t)
-      (temperature : core.option.Option.t f32.t)
+      (model : Option.t String.t)
+      (temperature : Option.t f32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
-      (top_k : core.option.Option.t i32.t)
+      (top_p : Option.t f32.t)
+      (top_k : Option.t i32.t)
       (metadata
         :
-        core.option.Option.t
-          (std.collections.hash.map.HashMap.t
+        Option.t
+          (HashMap.t
             String.t
             String.t
-            std.collections.hash.map.HashMap.Default.S))
+            HashMap.Default.S))
       : M OpaqueDef :=
     let* prompt := M.alloc prompt in
     let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -1277,23 +1231,23 @@ Module anthropic.
               let* prompt : M.Val String.t := M.copy prompt in
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
-              let* model : M.Val (core.option.Option.t String.t) :=
+              let* model : M.Val (Option.t String.t) :=
                 M.copy model in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
-              let* top_k : M.Val (core.option.Option.t i32.t) := M.copy top_k in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
+              let* top_k : M.Val (Option.t i32.t) := M.copy top_k in
               let* metadata :
                   M.Val
-                    (core.option.Option.t
-                      (std.collections.hash.map.HashMap.t
+                    (Option.t
+                      (HashMap.t
                         String.t
                         String.t
                         std.hash.random.RandomState.t)) :=
@@ -1335,7 +1289,7 @@ Module anthropic.
                 M.alloc α0 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -1343,7 +1297,7 @@ Module anthropic.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -1353,7 +1307,7 @@ Module anthropic.
                 M.alloc α3 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "x-api-key") in
                 let* α1 :
                     (core.result.Result.t
@@ -1458,7 +1412,7 @@ Module anthropic.
                     ] in
                 let* α8 : http.header.value.HeaderValue.t := M.read α7 in
                 let* α9 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -1468,28 +1422,28 @@ Module anthropic.
                 M.alloc α9 in
               let* body :
                   M.Val
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t) :=
                 let* α0 :
-                    std.collections.hash.map.HashMap.t
+                    HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t :=
                   M.call
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["new"] in
                 M.alloc α0 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "model") in
-                let* α1 : core.option.Option.t String.t :=
+                let* α1 : Option.t String.t :=
                   M.read model in
                 let* α2 : String.t :=
                   M.call
-                    ((core.option.Option.t
+                    ((Option.t
                           String.t)::["unwrap_or_else"]
                       α1
                       (fun (α0 : unit) =>
@@ -1522,9 +1476,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α4) in
-                let* α6 : core.option.Option.t serde_json.value.Value.t :=
+                let* α6 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -1532,7 +1486,7 @@ Module anthropic.
                       α0
                       α5) in
                 M.alloc α6 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "prompt") in
                 let* α1 :
                     core.result.Result.t
@@ -1545,9 +1499,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -1555,7 +1509,7 @@ Module anthropic.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "max_tokens_to_sample") in
                 let* α1 :
                     core.result.Result.t
@@ -1569,9 +1523,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -1579,12 +1533,12 @@ Module anthropic.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "temperature") in
-                let* α1 : core.option.Option.t f32.t := M.read temperature in
+                let* α1 : Option.t f32.t := M.read temperature in
                 let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
                 let* α3 : f32.t :=
-                  M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                  M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
                 let* α4 : M.Val f32.t := M.alloc α3 in
                 let* α5 :
                     core.result.Result.t
@@ -1597,9 +1551,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α5) in
-                let* α7 : core.option.Option.t serde_json.value.Value.t :=
+                let* α7 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -1607,11 +1561,11 @@ Module anthropic.
                       α0
                       α6) in
                 M.alloc α7 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "stream") in
-                let* α1 : core.option.Option.t serde_json.value.Value.t :=
+                let* α1 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -1621,14 +1575,14 @@ Module anthropic.
                 M.alloc α1 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "anthropic-version") in
                 let* α1 : ref str.t := M.read (mk_str "2023-06-01") in
                 let* α2 : http.header.value.HeaderValue.t :=
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -1643,12 +1597,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* stop_sequences := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t :=
                             M.read (mk_str "stop_sequences") in
                           let* α1 :
@@ -1665,9 +1619,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -1688,12 +1642,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_p := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_p") in
                           let* α1 :
                               core.result.Result.t
@@ -1707,9 +1661,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -1730,12 +1684,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_k := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_k") in
                           let* α1 :
                               core.result.Result.t
@@ -1749,9 +1703,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -1772,12 +1726,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* metadata := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "metadata") in
                           let* α1 :
                               core.result.Result.t
@@ -1792,9 +1746,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -2288,21 +2242,21 @@ Module anthropic.
   Definition call_anthropic_api
       (prompt : String.t)
       (max_tokens_to_sample : i32.t)
-      (model : core.option.Option.t String.t)
-      (temperature : core.option.Option.t f32.t)
+      (model : Option.t String.t)
+      (temperature : Option.t f32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
-      (top_k : core.option.Option.t i32.t)
+      (top_p : Option.t f32.t)
+      (top_k : Option.t i32.t)
       (metadata
         :
-        core.option.Option.t
-          (std.collections.hash.map.HashMap.t
+        Option.t
+          (HashMap.t
             String.t
             String.t
-            std.collections.hash.map.HashMap.Default.S))
+            HashMap.Default.S))
       : M OpaqueDef :=
     let* prompt := M.alloc prompt in
     let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -2323,23 +2277,23 @@ Module anthropic.
               let* prompt : M.Val String.t := M.copy prompt in
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
-              let* model : M.Val (core.option.Option.t String.t) :=
+              let* model : M.Val (Option.t String.t) :=
                 M.copy model in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
-              let* top_k : M.Val (core.option.Option.t i32.t) := M.copy top_k in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
+              let* top_k : M.Val (Option.t i32.t) := M.copy top_k in
               let* metadata :
                   M.Val
-                    (core.option.Option.t
-                      (std.collections.hash.map.HashMap.t
+                    (Option.t
+                      (HashMap.t
                         String.t
                         String.t
                         std.hash.random.RandomState.t)) :=
@@ -2381,7 +2335,7 @@ Module anthropic.
                 M.alloc α0 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -2389,7 +2343,7 @@ Module anthropic.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -2399,7 +2353,7 @@ Module anthropic.
                 M.alloc α3 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "x-api-key") in
                 let* α1 :
                     (core.result.Result.t
@@ -2504,7 +2458,7 @@ Module anthropic.
                     ] in
                 let* α8 : http.header.value.HeaderValue.t := M.read α7 in
                 let* α9 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -2514,14 +2468,14 @@ Module anthropic.
                 M.alloc α9 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "anthropic-version") in
                 let* α1 : ref str.t := M.read (mk_str "2023-06-01") in
                 let* α2 : http.header.value.HeaderValue.t :=
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -2531,28 +2485,28 @@ Module anthropic.
                 M.alloc α3 in
               let* body :
                   M.Val
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t) :=
                 let* α0 :
-                    std.collections.hash.map.HashMap.t
+                    HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t :=
                   M.call
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["new"] in
                 M.alloc α0 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "model") in
-                let* α1 : core.option.Option.t String.t :=
+                let* α1 : Option.t String.t :=
                   M.read model in
                 let* α2 : String.t :=
                   M.call
-                    ((core.option.Option.t
+                    ((Option.t
                           String.t)::["unwrap_or_else"]
                       α1
                       (fun (α0 : unit) =>
@@ -2585,9 +2539,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α4) in
-                let* α6 : core.option.Option.t serde_json.value.Value.t :=
+                let* α6 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -2595,7 +2549,7 @@ Module anthropic.
                       α0
                       α5) in
                 M.alloc α6 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "prompt") in
                 let* α1 :
                     core.result.Result.t
@@ -2608,9 +2562,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -2618,7 +2572,7 @@ Module anthropic.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "max_tokens_to_sample") in
                 let* α1 :
                     core.result.Result.t
@@ -2632,9 +2586,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -2642,12 +2596,12 @@ Module anthropic.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "temperature") in
-                let* α1 : core.option.Option.t f32.t := M.read temperature in
+                let* α1 : Option.t f32.t := M.read temperature in
                 let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
                 let* α3 : f32.t :=
-                  M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                  M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
                 let* α4 : M.Val f32.t := M.alloc α3 in
                 let* α5 :
                     core.result.Result.t
@@ -2660,9 +2614,9 @@ Module anthropic.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α5) in
-                let* α7 : core.option.Option.t serde_json.value.Value.t :=
+                let* α7 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -2670,11 +2624,11 @@ Module anthropic.
                       α0
                       α6) in
                 M.alloc α7 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "stream") in
-                let* α1 : core.option.Option.t serde_json.value.Value.t :=
+                let* α1 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -2689,12 +2643,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* stop_sequences := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t :=
                             M.read (mk_str "stop_sequences") in
                           let* α1 :
@@ -2711,9 +2665,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -2734,12 +2688,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_p := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_p") in
                           let* α1 :
                               core.result.Result.t
@@ -2753,9 +2707,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -2776,12 +2730,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_k := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_k") in
                           let* α1 :
                               core.result.Result.t
@@ -2795,9 +2749,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -2818,12 +2772,12 @@ Module anthropic.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* metadata := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "metadata") in
                           let* α1 :
                               core.result.Result.t
@@ -2838,9 +2792,9 @@ Module anthropic.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -3899,9 +3853,6 @@ Section Impl_core_fmt_Display_for_assistants_extra_anthropic_ApiError_t.
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
   
   Global Instance ℐ : core.fmt.Display.Trait Self := {
     core.fmt.Display.fmt := fmt;
@@ -3917,17 +3868,17 @@ Section RequestBody.
     max_tokens_to_sample : i32.t;
     temperature : f32.t;
     stop_sequences :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A);
-    top_p : core.option.Option.t f32.t;
-    top_k : core.option.Option.t i32.t;
+    top_p : Option.t f32.t;
+    top_k : Option.t i32.t;
     metadata :
-      core.option.Option.t
-        (std.collections.hash.map.HashMap.t
+      Option.t
+        (HashMap.t
           String.t
           String.t
-          std.collections.hash.map.HashMap.Default.S);
-    stream : core.option.Option.t bool.t;
+          HashMap.Default.S);
+    stream : Option.t bool.t;
   }.
   
   Definition Get_model :=
@@ -4383,7 +4334,7 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
             (mut_ref _) ->
               (ref str.t) ->
               (ref
-                (core.option.Option.t
+                (Option.t
                   (Vec.t String.t alloc.alloc.Global.t)))
               ->
               M (core.result.Result.t unit _) :=
@@ -4391,7 +4342,7 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
             serde.ser.SerializeStruct.serialize_field
               (Self := _)
               (T :=
-                core.option.Option.t
+                Option.t
                   (Vec.t String.t alloc.alloc.Global.t))
               (Trait := ℐ))) in
         let* α2 : ref str.t := M.read (mk_str "stop_sequences") in
@@ -4465,12 +4416,12 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
         let* α1 :
             (mut_ref _) ->
               (ref str.t) ->
-              (ref (core.option.Option.t f32.t)) ->
+              (ref (Option.t f32.t)) ->
               M (core.result.Result.t unit _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.ser.SerializeStruct.serialize_field
               (Self := _)
-              (T := core.option.Option.t f32.t)
+              (T := Option.t f32.t)
               (Trait := ℐ))) in
         let* α2 : ref str.t := M.read (mk_str "top_p") in
         let* α3 : ref assistants_extra.anthropic.RequestBody.t := M.read self in
@@ -4543,12 +4494,12 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
         let* α1 :
             (mut_ref _) ->
               (ref str.t) ->
-              (ref (core.option.Option.t i32.t)) ->
+              (ref (Option.t i32.t)) ->
               M (core.result.Result.t unit _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.ser.SerializeStruct.serialize_field
               (Self := _)
-              (T := core.option.Option.t i32.t)
+              (T := Option.t i32.t)
               (Trait := ℐ))) in
         let* α2 : ref str.t := M.read (mk_str "top_k") in
         let* α3 : ref assistants_extra.anthropic.RequestBody.t := M.read self in
@@ -4622,8 +4573,8 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
             (mut_ref _) ->
               (ref str.t) ->
               (ref
-                (core.option.Option.t
-                  (std.collections.hash.map.HashMap.t
+                (Option.t
+                  (HashMap.t
                     String.t
                     String.t
                     std.hash.random.RandomState.t)))
@@ -4633,8 +4584,8 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
             serde.ser.SerializeStruct.serialize_field
               (Self := _)
               (T :=
-                core.option.Option.t
-                  (std.collections.hash.map.HashMap.t
+                Option.t
+                  (HashMap.t
                     String.t
                     String.t
                     std.hash.random.RandomState.t))
@@ -4710,12 +4661,12 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
         let* α1 :
             (mut_ref _) ->
               (ref str.t) ->
-              (ref (core.option.Option.t bool.t)) ->
+              (ref (Option.t bool.t)) ->
               M (core.result.Result.t unit _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.ser.SerializeStruct.serialize_field
               (Self := _)
-              (T := core.option.Option.t bool.t)
+              (T := Option.t bool.t)
               (Trait := ℐ))) in
         let* α2 : ref str.t := M.read (mk_str "stream") in
         let* α3 : ref assistants_extra.anthropic.RequestBody.t := M.read self in
@@ -4788,8 +4739,6 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_anthropic_RequestBody_t.
   Global Instance AssociatedFunction_serialize
       {__S : Set}
       {ℋ_0 : serde.ser.Serializer.Trait __S} :
-    Notations.DoubleColon Self "serialize" := {
-    Notations.double_colon := serialize (__S := __S);
   }.
   
   Global Instance ℐ : serde.ser.Serialize.Trait Self := {
@@ -4865,8 +4814,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_anthropic_ResponseBody_t.
   Global Instance AssociatedFunction_deserialize
       {__D : Set}
       {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
+
   }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
@@ -4916,10 +4864,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -4982,8 +4927,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_u64
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
+
   }.
   
   (*
@@ -5047,8 +4991,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_str
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
+
   }.
   
   (*
@@ -5162,8 +5105,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_bytes
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -5233,8 +5175,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_anthropic___deserialize__
   Global Instance AssociatedFunction_deserialize
       {__D : Set}
       {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
+
   }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
@@ -5286,10 +5227,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     let* α1 : ref str.t := M.read (mk_str "struct ResponseBody") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -5308,7 +5245,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
       (let* __field0 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -5316,14 +5253,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -5332,21 +5269,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -5379,12 +5316,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -5395,7 +5332,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -5404,8 +5341,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -5414,7 +5351,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -5442,7 +5379,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
       let* __field1 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -5450,14 +5387,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -5466,21 +5403,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -5513,12 +5450,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -5529,7 +5466,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -5538,8 +5475,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -5548,7 +5485,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -5576,7 +5513,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
       let* __field2 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -5584,14 +5521,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -5600,21 +5537,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -5647,12 +5584,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -5663,7 +5600,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -5672,8 +5609,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -5682,7 +5619,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -5727,8 +5664,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_seq
       {__A : Set}
       {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
+
   }.
   
   (*
@@ -5745,17 +5681,17 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field2 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field2 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)
                   _)
                 ->
@@ -5764,7 +5700,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -5772,7 +5708,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -5782,26 +5718,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -5839,7 +5775,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.anthropic._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -5847,7 +5783,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -5861,7 +5797,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t))
               ] in
           match_operator
@@ -5870,8 +5806,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -5885,7 +5821,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -6017,7 +5953,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -6031,7 +5967,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -6163,7 +6099,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -6177,7 +6113,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field2)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -6308,7 +6244,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field2 (core.option.Option.Some α6) in
+                            assign __field2 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -6449,8 +6385,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -6459,7 +6395,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -6552,8 +6488,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -6562,7 +6498,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -6655,8 +6591,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field2 := M.copy γ0_0 in
                   M.pure __field2
                 | _ => M.break_match
@@ -6665,7 +6601,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -6770,8 +6706,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_map
       {__A : Set}
       {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -6867,9 +6802,7 @@ Section Impl_core_fmt_Debug_for_assistants_extra_anthropic_ResponseBody_t.
         α6
         (pointer_coercion "Unsize" (borrow α8))).
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
+
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -6943,8 +6876,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_anthropic_Usage_t.
   Global Instance AssociatedFunction_deserialize
       {__D : Set}
       {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
+
   }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
@@ -6980,10 +6912,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -7046,8 +6974,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_u64
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
+
   }.
   
   (*
@@ -7111,8 +7038,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_str
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
+
   }.
   
   (*
@@ -7242,8 +7168,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_bytes
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -7322,10 +7247,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     let* α1 : ref str.t := M.read (mk_str "struct Usage") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -7343,34 +7265,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     M.catch_return
       (let* __field0 : M.Val i32.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i32.t) _) ->
+            (core.result.Result.t (Option.t i32.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i32.t) _)
+              (Self := core.result.Result.t (Option.t i32.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i32.t) _) :=
+              M (core.result.Result.t (Option.t i32.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i32.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i32.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i32.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i32.t) :=
+              (Option.t i32.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i32.t)) :=
+                (Option.t i32.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i32.t) :=
+        let* α5 : M.Val (Option.t i32.t) :=
           match_operator
             α4
             [
@@ -7403,11 +7325,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i32.t := never_to_any α4 in
+                  let* α5 : Option.t i32.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t));
+                M (M.Val (Option.t i32.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -7418,7 +7340,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t))
+                M (M.Val (Option.t i32.t))
             ] in
         let* α6 : M.Val i32.t :=
           match_operator
@@ -7427,8 +7349,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -7437,7 +7359,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -7463,34 +7385,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
         M.copy α6 in
       let* __field1 : M.Val i32.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i32.t) _) ->
+            (core.result.Result.t (Option.t i32.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i32.t) _)
+              (Self := core.result.Result.t (Option.t i32.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i32.t) _) :=
+              M (core.result.Result.t (Option.t i32.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i32.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i32.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i32.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i32.t) :=
+              (Option.t i32.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i32.t)) :=
+                (Option.t i32.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i32.t) :=
+        let* α5 : M.Val (Option.t i32.t) :=
           match_operator
             α4
             [
@@ -7523,11 +7445,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i32.t := never_to_any α4 in
+                  let* α5 : Option.t i32.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t));
+                M (M.Val (Option.t i32.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -7538,7 +7460,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t))
+                M (M.Val (Option.t i32.t))
             ] in
         let* α6 : M.Val i32.t :=
           match_operator
@@ -7547,8 +7469,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -7557,7 +7479,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -7583,34 +7505,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
         M.copy α6 in
       let* __field2 : M.Val i32.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i32.t) _) ->
+            (core.result.Result.t (Option.t i32.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i32.t) _)
+              (Self := core.result.Result.t (Option.t i32.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i32.t) _) :=
+              M (core.result.Result.t (Option.t i32.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i32.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i32.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i32.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i32.t) :=
+              (Option.t i32.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i32.t)) :=
+                (Option.t i32.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i32.t) :=
+        let* α5 : M.Val (Option.t i32.t) :=
           match_operator
             α4
             [
@@ -7643,11 +7565,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i32.t := never_to_any α4 in
+                  let* α5 : Option.t i32.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t));
+                M (M.Val (Option.t i32.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -7658,7 +7580,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t))
+                M (M.Val (Option.t i32.t))
             ] in
         let* α6 : M.Val i32.t :=
           match_operator
@@ -7667,8 +7589,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -7677,7 +7599,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -7718,8 +7640,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_seq
       {__A : Set}
       {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
+
   }.
   
   (*
@@ -7736,17 +7657,17 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t i32.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t i32.t) :=
-        M.alloc core.option.Option.None in
-      let* __field2 : M.Val (core.option.Option.t i32.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t i32.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t i32.t) :=
+        M.alloc Option.None in
+      let* __field2 : M.Val (Option.t i32.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)
                   _)
                 ->
@@ -7755,7 +7676,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -7763,7 +7684,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -7773,26 +7694,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -7830,7 +7751,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.anthropic._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -7838,7 +7759,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -7852,7 +7773,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t))
               ] in
           match_operator
@@ -7861,8 +7782,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -7876,7 +7797,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["is_some"]
+                                ((Option.t i32.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -7998,7 +7919,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val i32.t)
                                 ] in
                             let* α6 : i32.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -8012,7 +7933,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["is_some"]
+                                ((Option.t i32.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -8134,7 +8055,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val i32.t)
                                 ] in
                             let* α6 : i32.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -8148,7 +8069,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["is_some"]
+                                ((Option.t i32.t)::["is_some"]
                                   (borrow __field2)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -8270,7 +8191,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val i32.t)
                                 ] in
                             let* α6 : i32.t := M.read α5 in
-                            assign __field2 (core.option.Option.Some α6) in
+                            assign __field2 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -8411,8 +8332,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -8421,7 +8342,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i32.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -8514,8 +8435,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -8524,7 +8445,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i32.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -8617,8 +8538,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field2 := M.copy γ0_0 in
                   M.pure __field2
                 | _ => M.break_match
@@ -8627,7 +8548,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i32.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -8729,8 +8650,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_map
       {__A : Set}
       {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -9060,9 +8980,7 @@ Section Impl_core_fmt_Debug_for_assistants_extra_anthropic_ApiError_t.
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
+
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -9325,8 +9243,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_anthropic_ApiResponseBody
   Global Instance AssociatedFunction_deserialize
       {__D : Set}
       {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
+
   }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
@@ -9368,10 +9285,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -9416,8 +9329,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_u64
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
+
   }.
   
   (*
@@ -9463,8 +9375,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_str
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
+
   }.
   
   (*
@@ -9523,8 +9434,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_bytes
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -9605,10 +9515,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
       M.read (mk_str "struct variant ApiResponseBody::Err") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -9626,13 +9533,13 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     M.catch_return
       (let* __field0 :
           M.Val
-            (core.option.Option.t assistants_extra.anthropic.ApiErrorType.t) :=
-        M.alloc core.option.Option.None in
+            (Option.t assistants_extra.anthropic.ApiErrorType.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)
                   _)
                 ->
@@ -9641,7 +9548,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -9649,7 +9556,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -9659,26 +9566,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -9716,7 +9623,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.anthropic._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -9724,7 +9631,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -9738,7 +9645,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t))
               ] in
           match_operator
@@ -9747,8 +9654,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -9762,7 +9669,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       assistants_extra.anthropic.ApiErrorType.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -9907,7 +9814,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                             let* α6 :
                                 assistants_extra.anthropic.ApiErrorType.t :=
                               M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -10048,8 +9955,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -10058,7 +9965,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t
                           assistants_extra.anthropic.ApiErrorType.t
@@ -10170,8 +10077,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_map
       {__A : Set}
       {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -10288,9 +10194,7 @@ Section Impl_core_fmt_Debug_for_assistants_extra_anthropic_ApiResponseBody_t.
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
+
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -10359,8 +10263,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_anthropic_ApiErrorType_t.
   Global Instance AssociatedFunction_deserialize
       {__D : Set}
       {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
+
   }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
@@ -10403,10 +10306,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -10460,8 +10359,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_u64
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
+
   }.
   
   (*
@@ -10516,8 +10414,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_str
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
+
   }.
   
   (*
@@ -10599,8 +10496,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Fie
   Global Instance AssociatedFunction_visit_bytes
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
+
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -10680,10 +10576,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     let* α1 : ref str.t := M.read (mk_str "struct ApiErrorType") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -10702,7 +10595,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
       (let* __field0 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -10710,14 +10603,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -10726,21 +10619,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -10773,12 +10666,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -10789,7 +10682,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -10798,8 +10691,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -10808,7 +10701,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -10836,7 +10729,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
       let* __field1 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -10844,14 +10737,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -10860,21 +10753,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -10907,12 +10800,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -10923,7 +10816,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -10932,8 +10825,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -10942,7 +10835,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -10985,8 +10878,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_seq
       {__A : Set}
       {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
   }.
   
   (*
@@ -11003,15 +10894,15 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)
                   _)
                 ->
@@ -11020,7 +10911,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -11028,7 +10919,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.anthropic._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -11038,26 +10929,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.anthropic._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.anthropic._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -11095,7 +10986,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.anthropic._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -11103,7 +10994,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -11117,7 +11008,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.anthropic._.deserialize.__Field.t))
               ] in
           match_operator
@@ -11126,8 +11017,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -11141,7 +11032,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -11272,7 +11163,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -11286,7 +11177,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -11418,7 +11309,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -11559,8 +11450,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -11569,7 +11460,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -11662,8 +11553,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -11672,7 +11563,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -11775,8 +11666,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_anthropic___deserialize___Vis
   Global Instance AssociatedFunction_visit_map
       {__A : Set}
       {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
   }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
@@ -11863,9 +11752,6 @@ Section Impl_core_fmt_Debug_for_assistants_extra_anthropic_ApiErrorType_t.
         α4
         (pointer_coercion "Unsize" (borrow α6))).
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -11894,10 +11780,6 @@ Section Impl_core_convert_From_http_header_value_InvalidHeaderValue_t_for_assist
     let* α1 : String.t := M.call (α0 (borrow error)) in
     M.pure (assistants_extra.anthropic.ApiError.InvalidRequestError α1).
   
-  Global Instance AssociatedFunction_from :
-    Notations.DoubleColon Self "from" := {
-    Notations.double_colon := from;
-  }.
   
   Global Instance ℐ :
     core.convert.From.Trait Self
@@ -11926,10 +11808,6 @@ Section Impl_core_convert_From_serde_json_error_Error_t_for_assistants_extra_ant
     let* α1 : String.t := M.call (α0 (borrow error)) in
     M.pure (assistants_extra.anthropic.ApiError.InvalidRequestError α1).
   
-  Global Instance AssociatedFunction_from :
-    Notations.DoubleColon Self "from" := {
-    Notations.double_colon := from;
-  }.
   
   Global Instance ℐ :
     core.convert.From.Trait Self (T := serde_json.error.Error.t) := {
@@ -11957,10 +11835,7 @@ Section Impl_core_convert_From_reqwest_error_Error_t_for_assistants_extra_anthro
     let* α1 : String.t := M.call (α0 (borrow error)) in
     M.pure (assistants_extra.anthropic.ApiError.InvalidRequestError α1).
   
-  Global Instance AssociatedFunction_from :
-    Notations.DoubleColon Self "from" := {
-    Notations.double_colon := from;
-  }.
+
   
   Global Instance ℐ :
     core.convert.From.Trait Self (T := reqwest.error.Error.t) := {
@@ -12047,7 +11922,7 @@ Definition format_prompt
               α5
               (borrow α9)
               ((Integer.of_Z 91) : u32.t)
-              core.option.Option.None) in
+              Option.None) in
         M.alloc α10 in
       M.alloc tt
     else
@@ -12162,7 +12037,7 @@ Definition format_prompt
               α5
               (borrow α9)
               ((Integer.of_Z 98) : u32.t)
-              core.option.Option.None) in
+              Option.None) in
         M.alloc α10 in
       M.alloc tt
     else
@@ -12222,21 +12097,21 @@ pub async fn call_anthropic_api_stream(
 Definition call_anthropic_api_stream
     (prompt : String.t)
     (max_tokens_to_sample : i32.t)
-    (model : core.option.Option.t String.t)
-    (temperature : core.option.Option.t f32.t)
+    (model : Option.t String.t)
+    (temperature : Option.t f32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
-    (top_k : core.option.Option.t i32.t)
+    (top_p : Option.t f32.t)
+    (top_k : Option.t i32.t)
     (metadata
       :
-      core.option.Option.t
-        (std.collections.hash.map.HashMap.t
+      Option.t
+        (HashMap.t
           String.t
           String.t
-          std.collections.hash.map.HashMap.Default.S))
+          HashMap.Default.S))
     : M OpaqueDef :=
   let* prompt := M.alloc prompt in
   let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -12257,23 +12132,23 @@ Definition call_anthropic_api_stream
             let* prompt : M.Val String.t := M.copy prompt in
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
-            let* model : M.Val (core.option.Option.t String.t) :=
+            let* model : M.Val (Option.t String.t) :=
               M.copy model in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
-            let* top_k : M.Val (core.option.Option.t i32.t) := M.copy top_k in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
+            let* top_k : M.Val (Option.t i32.t) := M.copy top_k in
             let* metadata :
                 M.Val
-                  (core.option.Option.t
-                    (std.collections.hash.map.HashMap.t
+                  (Option.t
+                    (HashMap.t
                       String.t
                       String.t
                       std.hash.random.RandomState.t)) :=
@@ -12313,13 +12188,13 @@ Definition call_anthropic_api_stream
                       http.header.value.HeaderValue.t)::["new"] in
               M.alloc α0 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -12328,7 +12203,7 @@ Definition call_anthropic_api_stream
                     α2) in
               M.alloc α3 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "x-api-key") in
               let* α1 :
                   (core.result.Result.t
@@ -12431,7 +12306,7 @@ Definition call_anthropic_api_stream
                       M (M.Val http.header.value.HeaderValue.t)
                   ] in
               let* α8 : http.header.value.HeaderValue.t := M.read α7 in
-              let* α9 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α9 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -12441,28 +12316,28 @@ Definition call_anthropic_api_stream
               M.alloc α9 in
             let* body :
                 M.Val
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t) :=
               let* α0 :
-                  std.collections.hash.map.HashMap.t
+                  HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t :=
                 M.call
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t)::["new"] in
               M.alloc α0 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "model") in
-              let* α1 : core.option.Option.t String.t :=
+              let* α1 : Option.t String.t :=
                 M.read model in
               let* α2 : String.t :=
                 M.call
-                  ((core.option.Option.t
+                  ((Option.t
                         String.t)::["unwrap_or_else"]
                     α1
                     (fun (α0 : unit) =>
@@ -12494,9 +12369,9 @@ Definition call_anthropic_api_stream
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α4) in
-              let* α6 : core.option.Option.t serde_json.value.Value.t :=
+              let* α6 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -12504,7 +12379,7 @@ Definition call_anthropic_api_stream
                     α0
                     α5) in
               M.alloc α6 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "prompt") in
               let* α1 :
                   core.result.Result.t
@@ -12517,9 +12392,9 @@ Definition call_anthropic_api_stream
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -12527,7 +12402,7 @@ Definition call_anthropic_api_stream
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "max_tokens_to_sample") in
               let* α1 :
                   core.result.Result.t
@@ -12541,9 +12416,9 @@ Definition call_anthropic_api_stream
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -12551,12 +12426,12 @@ Definition call_anthropic_api_stream
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "temperature") in
-              let* α1 : core.option.Option.t f32.t := M.read temperature in
+              let* α1 : Option.t f32.t := M.read temperature in
               let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
               let* α3 : f32.t :=
-                M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
               let* α4 : M.Val f32.t := M.alloc α3 in
               let* α5 :
                   core.result.Result.t
@@ -12569,9 +12444,9 @@ Definition call_anthropic_api_stream
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α5) in
-              let* α7 : core.option.Option.t serde_json.value.Value.t :=
+              let* α7 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -12579,11 +12454,11 @@ Definition call_anthropic_api_stream
                     α0
                     α6) in
               M.alloc α7 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "stream") in
-              let* α1 : core.option.Option.t serde_json.value.Value.t :=
+              let* α1 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -12592,12 +12467,12 @@ Definition call_anthropic_api_stream
                     (serde_json.value.Value.Bool true)) in
               M.alloc α1 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "anthropic-version") in
               let* α1 : ref str.t := M.read (mk_str "2023-06-01") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -12612,12 +12487,12 @@ Definition call_anthropic_api_stream
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* stop_sequences := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t :=
                           M.read (mk_str "stop_sequences") in
                         let* α1 :
@@ -12634,9 +12509,9 @@ Definition call_anthropic_api_stream
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -12657,12 +12532,12 @@ Definition call_anthropic_api_stream
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_p := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_p") in
                         let* α1 :
                             core.result.Result.t
@@ -12676,9 +12551,9 @@ Definition call_anthropic_api_stream
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -12699,12 +12574,12 @@ Definition call_anthropic_api_stream
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_k := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_k") in
                         let* α1 :
                             core.result.Result.t
@@ -12718,9 +12593,9 @@ Definition call_anthropic_api_stream
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -12741,12 +12616,12 @@ Definition call_anthropic_api_stream
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* metadata := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "metadata") in
                         let* α1 :
                             core.result.Result.t
@@ -12761,9 +12636,9 @@ Definition call_anthropic_api_stream
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -13252,21 +13127,21 @@ pub async fn call_anthropic_api(
 Definition call_anthropic_api
     (prompt : String.t)
     (max_tokens_to_sample : i32.t)
-    (model : core.option.Option.t String.t)
-    (temperature : core.option.Option.t f32.t)
+    (model : Option.t String.t)
+    (temperature : Option.t f32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
-    (top_k : core.option.Option.t i32.t)
+    (top_p : Option.t f32.t)
+    (top_k : Option.t i32.t)
     (metadata
       :
-      core.option.Option.t
-        (std.collections.hash.map.HashMap.t
+      Option.t
+        (HashMap.t
           String.t
           String.t
-          std.collections.hash.map.HashMap.Default.S))
+          HashMap.Default.S))
     : M OpaqueDef :=
   let* prompt := M.alloc prompt in
   let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -13287,23 +13162,23 @@ Definition call_anthropic_api
             let* prompt : M.Val String.t := M.copy prompt in
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
-            let* model : M.Val (core.option.Option.t String.t) :=
+            let* model : M.Val (Option.t String.t) :=
               M.copy model in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
-            let* top_k : M.Val (core.option.Option.t i32.t) := M.copy top_k in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
+            let* top_k : M.Val (Option.t i32.t) := M.copy top_k in
             let* metadata :
                 M.Val
-                  (core.option.Option.t
-                    (std.collections.hash.map.HashMap.t
+                  (Option.t
+                    (HashMap.t
                       String.t
                       String.t
                       std.hash.random.RandomState.t)) :=
@@ -13343,13 +13218,13 @@ Definition call_anthropic_api
                       http.header.value.HeaderValue.t)::["new"] in
               M.alloc α0 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -13358,7 +13233,7 @@ Definition call_anthropic_api
                     α2) in
               M.alloc α3 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "x-api-key") in
               let* α1 :
                   (core.result.Result.t
@@ -13461,7 +13336,7 @@ Definition call_anthropic_api
                       M (M.Val http.header.value.HeaderValue.t)
                   ] in
               let* α8 : http.header.value.HeaderValue.t := M.read α7 in
-              let* α9 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α9 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -13470,12 +13345,12 @@ Definition call_anthropic_api
                     α8) in
               M.alloc α9 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "anthropic-version") in
               let* α1 : ref str.t := M.read (mk_str "2023-06-01") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -13485,28 +13360,28 @@ Definition call_anthropic_api
               M.alloc α3 in
             let* body :
                 M.Val
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t) :=
               let* α0 :
-                  std.collections.hash.map.HashMap.t
+                  HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t :=
                 M.call
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t)::["new"] in
               M.alloc α0 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "model") in
-              let* α1 : core.option.Option.t String.t :=
+              let* α1 : Option.t String.t :=
                 M.read model in
               let* α2 : String.t :=
                 M.call
-                  ((core.option.Option.t
+                  ((Option.t
                         String.t)::["unwrap_or_else"]
                     α1
                     (fun (α0 : unit) =>
@@ -13538,9 +13413,9 @@ Definition call_anthropic_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α4) in
-              let* α6 : core.option.Option.t serde_json.value.Value.t :=
+              let* α6 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -13548,7 +13423,7 @@ Definition call_anthropic_api
                     α0
                     α5) in
               M.alloc α6 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "prompt") in
               let* α1 :
                   core.result.Result.t
@@ -13561,9 +13436,9 @@ Definition call_anthropic_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -13571,7 +13446,7 @@ Definition call_anthropic_api
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "max_tokens_to_sample") in
               let* α1 :
                   core.result.Result.t
@@ -13585,9 +13460,9 @@ Definition call_anthropic_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -13595,12 +13470,12 @@ Definition call_anthropic_api
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "temperature") in
-              let* α1 : core.option.Option.t f32.t := M.read temperature in
+              let* α1 : Option.t f32.t := M.read temperature in
               let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
               let* α3 : f32.t :=
-                M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
               let* α4 : M.Val f32.t := M.alloc α3 in
               let* α5 :
                   core.result.Result.t
@@ -13613,9 +13488,9 @@ Definition call_anthropic_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α5) in
-              let* α7 : core.option.Option.t serde_json.value.Value.t :=
+              let* α7 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -13623,11 +13498,11 @@ Definition call_anthropic_api
                     α0
                     α6) in
               M.alloc α7 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "stream") in
-              let* α1 : core.option.Option.t serde_json.value.Value.t :=
+              let* α1 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -13642,12 +13517,12 @@ Definition call_anthropic_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* stop_sequences := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t :=
                           M.read (mk_str "stop_sequences") in
                         let* α1 :
@@ -13664,9 +13539,9 @@ Definition call_anthropic_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -13687,12 +13562,12 @@ Definition call_anthropic_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_p := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_p") in
                         let* α1 :
                             core.result.Result.t
@@ -13706,9 +13581,9 @@ Definition call_anthropic_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -13729,12 +13604,12 @@ Definition call_anthropic_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_k := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_k") in
                         let* α1 :
                             core.result.Result.t
@@ -13748,9 +13623,9 @@ Definition call_anthropic_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -13771,12 +13646,12 @@ Definition call_anthropic_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* metadata := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "metadata") in
                         let* α1 :
                             core.result.Result.t
@@ -13791,9 +13666,9 @@ Definition call_anthropic_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -14588,8 +14463,8 @@ Module openai.
     Record t : Set := {
       message : String.t;
       type : String.t;
-      param : core.option.Option.t serde_json.value.Value.t;
-      code : core.option.Option.t serde_json.value.Value.t;
+      param : Option.t serde_json.value.Value.t;
+      code : Option.t serde_json.value.Value.t;
     }.
     
     Definition Get_message :=
@@ -14628,7 +14503,7 @@ Module openai.
       let* α7 : ref assistants_extra.openai.ApiErrorDetail.t := M.read self in
       let* α8 : ref str.t := M.read (mk_str "code") in
       let* α9 : ref assistants_extra.openai.ApiErrorDetail.t := M.read self in
-      let* α10 : M.Val (ref (core.option.Option.t serde_json.value.Value.t)) :=
+      let* α10 : M.Val (ref (Option.t serde_json.value.Value.t)) :=
         M.alloc
           (borrow
             (assistants_extra.openai.ApiErrorDetail.Get_code (deref α9))) in
@@ -14654,10 +14529,7 @@ Module openai.
           α8
           (pointer_coercion "Unsize" (borrow α10))).
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
+
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -14704,10 +14576,7 @@ Module openai.
           α2
           (pointer_coercion "Unsize" (borrow α4))).
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
+
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -14764,10 +14633,6 @@ Module openai.
           α4
           (pointer_coercion "Unsize" (borrow α6))).
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -14810,10 +14675,7 @@ Module openai.
           assistants_extra.openai.Message.content := α5;
         |}.
     
-    Global Instance AssociatedFunction_clone :
-      Notations.DoubleColon Self "clone" := {
-      Notations.double_colon := clone;
-    }.
+
     
     Global Instance ℐ : core.clone.Clone.Required.Trait Self := {
       core.clone.Clone.clone := clone;
@@ -14874,10 +14736,6 @@ Module openai.
           α4
           (pointer_coercion "Unsize" (borrow α6))).
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -14950,10 +14808,6 @@ Module openai.
           α6
           (pointer_coercion "Unsize" (borrow α8))).
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -15076,10 +14930,6 @@ Module openai.
         M.alloc α4 in
       M.read α0.
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -15267,10 +15117,7 @@ Module openai.
           ] in
       M.read α0.
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
+
     
     Global Instance ℐ : core.fmt.Debug.Trait Self := {
       core.fmt.Debug.fmt := fmt;
@@ -15294,10 +15141,7 @@ Module openai.
       let* α0 : reqwest.error.Error.t := M.read err in
       M.pure (assistants_extra.openai.OpenAIApiError.Reqwest α0).
     
-    Global Instance AssociatedFunction_from :
-      Notations.DoubleColon Self "from" := {
-      Notations.double_colon := from;
-    }.
+
     
     Global Instance ℐ :
       core.convert.From.Trait Self (T := reqwest.error.Error.t) := {
@@ -15502,10 +15346,7 @@ Module openai.
           ] in
       M.read α0.
     
-    Global Instance AssociatedFunction_fmt :
-      Notations.DoubleColon Self "fmt" := {
-      Notations.double_colon := fmt;
-    }.
+
     
     Global Instance ℐ : core.fmt.Display.Trait Self := {
       core.fmt.Display.fmt := fmt;
@@ -15572,13 +15413,13 @@ Module openai.
   Definition call_openai_api
       (prompt : String.t)
       (max_tokens_to_sample : i32.t)
-      (model : core.option.Option.t String.t)
-      (temperature : core.option.Option.t f32.t)
+      (model : Option.t String.t)
+      (temperature : Option.t f32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
+      (top_p : Option.t f32.t)
       : M OpaqueDef :=
     let* prompt := M.alloc prompt in
     let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -15597,18 +15438,18 @@ Module openai.
               let* prompt : M.Val String.t := M.copy prompt in
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
-              let* model : M.Val (core.option.Option.t String.t) :=
+              let* model : M.Val (Option.t String.t) :=
                 M.copy model in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
               let* url : M.Val (ref str.t) :=
                 M.copy (mk_str "https://api.openai.com/v1/chat/completions") in
               let* default_model : M.Val String.t :=
@@ -15621,11 +15462,11 @@ Module openai.
                 let* α2 : String.t := M.call (α0 α1) in
                 M.alloc α2 in
               let* model : M.Val String.t :=
-                let* α0 : core.option.Option.t String.t :=
+                let* α0 : Option.t String.t :=
                   M.read model in
                 let* α1 : String.t :=
                   M.call
-                    ((core.option.Option.t
+                    ((Option.t
                           String.t)::["unwrap_or_else"]
                       α0
                       (fun (α0 : unit) =>
@@ -15676,7 +15517,7 @@ Module openai.
                 M.alloc α0 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -15684,7 +15525,7 @@ Module openai.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -15770,12 +15611,12 @@ Module openai.
                 M.copy α4 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "Authorization") in
                 let* α1 : http.header.value.HeaderValue.t :=
                   M.read auth_value in
                 let* α2 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -15785,22 +15626,22 @@ Module openai.
                 M.alloc α2 in
               let* body :
                   M.Val
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t) :=
                 let* α0 :
-                    std.collections.hash.map.HashMap.t
+                    HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t :=
                   M.call
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["new"] in
                 M.alloc α0 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "model") in
                 let* α1 :
                     core.result.Result.t
@@ -15813,9 +15654,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -15823,7 +15664,7 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "messages") in
                 let* α1 : (ref str.t) -> M String.t :=
                   ltac:(M.get_method (fun ℐ =>
@@ -15878,9 +15719,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α10) in
-                let* α12 : core.option.Option.t serde_json.value.Value.t :=
+                let* α12 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -15888,7 +15729,7 @@ Module openai.
                       α0
                       α11) in
                 M.alloc α12 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "max_tokens") in
                 let* α1 :
                     core.result.Result.t
@@ -15902,9 +15743,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -15912,12 +15753,12 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "temperature") in
-                let* α1 : core.option.Option.t f32.t := M.read temperature in
+                let* α1 : Option.t f32.t := M.read temperature in
                 let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
                 let* α3 : f32.t :=
-                  M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                  M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
                 let* α4 : M.Val f32.t := M.alloc α3 in
                 let* α5 :
                     core.result.Result.t
@@ -15930,9 +15771,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α5) in
-                let* α7 : core.option.Option.t serde_json.value.Value.t :=
+                let* α7 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -15940,11 +15781,11 @@ Module openai.
                       α0
                       α6) in
                 M.alloc α7 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "stream") in
-                let* α1 : core.option.Option.t serde_json.value.Value.t :=
+                let* α1 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -15959,12 +15800,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* stop_sequences := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "stop") in
                           let* α1 :
                               core.result.Result.t
@@ -15980,9 +15821,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -16003,12 +15844,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_p := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_p") in
                           let* α1 :
                               core.result.Result.t
@@ -16022,9 +15863,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -16585,12 +16426,12 @@ Module openai.
       (prompt : String.t)
       (max_tokens_to_sample : i32.t)
       (model : String.t)
-      (temperature : core.option.Option.t f32.t)
+      (temperature : Option.t f32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
+      (top_p : Option.t f32.t)
       (url : String.t)
       : M OpaqueDef :=
     let* prompt := M.alloc prompt in
@@ -16612,16 +16453,16 @@ Module openai.
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
               let* model : M.Val String.t := M.copy model in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
               let* url : M.Val String.t := M.copy url in
               let* headers :
                   M.Val
@@ -16636,7 +16477,7 @@ Module openai.
                 M.alloc α0 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -16644,7 +16485,7 @@ Module openai.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -16685,7 +16526,7 @@ Module openai.
                 M.alloc α2 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -16693,7 +16534,7 @@ Module openai.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -16779,12 +16620,12 @@ Module openai.
                 M.copy α4 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "Authorization") in
                 let* α1 : http.header.value.HeaderValue.t :=
                   M.read auth_value in
                 let* α2 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -16794,22 +16635,22 @@ Module openai.
                 M.alloc α2 in
               let* body :
                   M.Val
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t) :=
                 let* α0 :
-                    std.collections.hash.map.HashMap.t
+                    HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t :=
                   M.call
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["new"] in
                 M.alloc α0 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "model") in
                 let* α1 :
                     core.result.Result.t
@@ -16822,9 +16663,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -16832,7 +16673,7 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "messages") in
                 let* α1 : (ref str.t) -> M String.t :=
                   ltac:(M.get_method (fun ℐ =>
@@ -16887,9 +16728,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α10) in
-                let* α12 : core.option.Option.t serde_json.value.Value.t :=
+                let* α12 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -16897,7 +16738,7 @@ Module openai.
                       α0
                       α11) in
                 M.alloc α12 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "max_tokens") in
                 let* α1 :
                     core.result.Result.t
@@ -16911,9 +16752,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -16921,12 +16762,12 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "temperature") in
-                let* α1 : core.option.Option.t f32.t := M.read temperature in
+                let* α1 : Option.t f32.t := M.read temperature in
                 let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
                 let* α3 : f32.t :=
-                  M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                  M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
                 let* α4 : M.Val f32.t := M.alloc α3 in
                 let* α5 :
                     core.result.Result.t
@@ -16939,9 +16780,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α5) in
-                let* α7 : core.option.Option.t serde_json.value.Value.t :=
+                let* α7 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -16949,11 +16790,11 @@ Module openai.
                       α0
                       α6) in
                 M.alloc α7 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "stream") in
-                let* α1 : core.option.Option.t serde_json.value.Value.t :=
+                let* α1 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -16968,12 +16809,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* stop_sequences := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "stop") in
                           let* α1 :
                               core.result.Result.t
@@ -16989,9 +16830,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -17012,12 +16853,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_p := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_p") in
                           let* α1 :
                               core.result.Result.t
@@ -17031,9 +16872,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -17503,9 +17344,9 @@ Module openai.
                                 assistants_extra.openai.ApiErrorDetail.type :=
                                   α3;
                                 assistants_extra.openai.ApiErrorDetail.param :=
-                                  core.option.Option.None;
+                                  Option.None;
                                 assistants_extra.openai.ApiErrorDetail.code :=
-                                  core.option.Option.None;
+                                  Option.None;
                               |};
                           |})) in
                   let* α5 := M.read α4 in
@@ -17641,13 +17482,13 @@ Module openai.
           assistants_extra.openai.Message.t
           Vec.Default.A)
       (max_tokens_to_sample : i32.t)
-      (model : core.option.Option.t String.t)
-      (temperature : core.option.Option.t f32.t)
+      (model : Option.t String.t)
+      (temperature : Option.t f32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
+      (top_p : Option.t f32.t)
       : M OpaqueDef :=
     let* messages := M.alloc messages in
     let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -17671,18 +17512,18 @@ Module openai.
                 M.copy messages in
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
-              let* model : M.Val (core.option.Option.t String.t) :=
+              let* model : M.Val (Option.t String.t) :=
                 M.copy model in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
               let* url : M.Val (ref str.t) :=
                 M.copy (mk_str "https://api.openai.com/v1/chat/completions") in
               let* default_model : M.Val String.t :=
@@ -17695,11 +17536,11 @@ Module openai.
                 let* α2 : String.t := M.call (α0 α1) in
                 M.alloc α2 in
               let* model : M.Val String.t :=
-                let* α0 : core.option.Option.t String.t :=
+                let* α0 : Option.t String.t :=
                   M.read model in
                 let* α1 : String.t :=
                   M.call
-                    ((core.option.Option.t
+                    ((Option.t
                           String.t)::["unwrap_or_else"]
                       α0
                       (fun (α0 : unit) =>
@@ -17750,7 +17591,7 @@ Module openai.
                 M.alloc α0 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -17758,7 +17599,7 @@ Module openai.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -17844,12 +17685,12 @@ Module openai.
                 M.copy α4 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "Authorization") in
                 let* α1 : http.header.value.HeaderValue.t :=
                   M.read auth_value in
                 let* α2 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -17859,22 +17700,22 @@ Module openai.
                 M.alloc α2 in
               let* body :
                   M.Val
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t) :=
                 let* α0 :
-                    std.collections.hash.map.HashMap.t
+                    HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t :=
                   M.call
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["new"] in
                 M.alloc α0 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "model") in
                 let* α1 :
                     core.result.Result.t
@@ -17887,9 +17728,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -17897,7 +17738,7 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "messages") in
                 let* α1 :
                     core.result.Result.t
@@ -17910,9 +17751,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -17920,7 +17761,7 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "max_tokens") in
                 let* α1 :
                     core.result.Result.t
@@ -17934,9 +17775,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -17944,12 +17785,12 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "temperature") in
-                let* α1 : core.option.Option.t f32.t := M.read temperature in
+                let* α1 : Option.t f32.t := M.read temperature in
                 let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
                 let* α3 : f32.t :=
-                  M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                  M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
                 let* α4 : M.Val f32.t := M.alloc α3 in
                 let* α5 :
                     core.result.Result.t
@@ -17962,9 +17803,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α5) in
-                let* α7 : core.option.Option.t serde_json.value.Value.t :=
+                let* α7 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -17972,11 +17813,11 @@ Module openai.
                       α0
                       α6) in
                 M.alloc α7 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "stream") in
-                let* α1 : core.option.Option.t serde_json.value.Value.t :=
+                let* α1 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -17991,12 +17832,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* stop_sequences := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "stop") in
                           let* α1 :
                               core.result.Result.t
@@ -18012,9 +17853,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -18035,12 +17876,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_p := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_p") in
                           let* α1 :
                               core.result.Result.t
@@ -18054,9 +17895,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -18611,12 +18452,12 @@ Module openai.
           Vec.Default.A)
       (max_tokens_to_sample : i32.t)
       (model : String.t)
-      (temperature : core.option.Option.t f32.t)
+      (temperature : Option.t f32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
+      (top_p : Option.t f32.t)
       (url : String.t)
       : M OpaqueDef :=
     let* messages := M.alloc messages in
@@ -18643,16 +18484,16 @@ Module openai.
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
               let* model : M.Val String.t := M.copy model in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
               let* url : M.Val String.t := M.copy url in
               let* headers :
                   M.Val
@@ -18667,7 +18508,7 @@ Module openai.
                 M.alloc α0 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -18675,7 +18516,7 @@ Module openai.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -18716,7 +18557,7 @@ Module openai.
                 M.alloc α2 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : http.header.name.HeaderName.t :=
                   M.read http.header.name.CONTENT_TYPE in
                 let* α1 : ref str.t := M.read (mk_str "application/json") in
@@ -18724,7 +18565,7 @@ Module openai.
                   M.call
                     (http.header.value.HeaderValue.t::["from_static"] α1) in
                 let* α3 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -18810,12 +18651,12 @@ Module openai.
                 M.copy α4 in
               let* _ :
                   M.Val
-                    (core.option.Option.t http.header.value.HeaderValue.t) :=
+                    (Option.t http.header.value.HeaderValue.t) :=
                 let* α0 : ref str.t := M.read (mk_str "Authorization") in
                 let* α1 : http.header.value.HeaderValue.t :=
                   M.read auth_value in
                 let* α2 :
-                    core.option.Option.t http.header.value.HeaderValue.t :=
+                    Option.t http.header.value.HeaderValue.t :=
                   M.call
                     ((http.header.map.HeaderMap.t
                           http.header.value.HeaderValue.t)::["insert"]
@@ -18825,22 +18666,22 @@ Module openai.
                 M.alloc α2 in
               let* body :
                   M.Val
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t) :=
                 let* α0 :
-                    std.collections.hash.map.HashMap.t
+                    HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t :=
                   M.call
-                    (std.collections.hash.map.HashMap.t
+                    (HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["new"] in
                 M.alloc α0 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "model") in
                 let* α1 :
                     core.result.Result.t
@@ -18853,9 +18694,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -18863,7 +18704,7 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "messages") in
                 let* α1 :
                     core.result.Result.t
@@ -18876,9 +18717,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -18886,7 +18727,7 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "max_tokens") in
                 let* α1 :
                     core.result.Result.t
@@ -18900,9 +18741,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α1) in
-                let* α3 : core.option.Option.t serde_json.value.Value.t :=
+                let* α3 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -18910,12 +18751,12 @@ Module openai.
                       α0
                       α2) in
                 M.alloc α3 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "temperature") in
-                let* α1 : core.option.Option.t f32.t := M.read temperature in
+                let* α1 : Option.t f32.t := M.read temperature in
                 let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
                 let* α3 : f32.t :=
-                  M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                  M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
                 let* α4 : M.Val f32.t := M.alloc α3 in
                 let* α5 :
                     core.result.Result.t
@@ -18928,9 +18769,9 @@ Module openai.
                           serde_json.value.Value.t
                           serde_json.error.Error.t)::["unwrap"]
                       α5) in
-                let* α7 : core.option.Option.t serde_json.value.Value.t :=
+                let* α7 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -18938,11 +18779,11 @@ Module openai.
                       α0
                       α6) in
                 M.alloc α7 in
-              let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+              let* _ : M.Val (Option.t serde_json.value.Value.t) :=
                 let* α0 : ref str.t := M.read (mk_str "stream") in
-                let* α1 : core.option.Option.t serde_json.value.Value.t :=
+                let* α1 : Option.t serde_json.value.Value.t :=
                   M.call
-                    ((std.collections.hash.map.HashMap.t
+                    ((HashMap.t
                           (ref str.t)
                           serde_json.value.Value.t
                           std.hash.random.RandomState.t)::["insert"]
@@ -18957,12 +18798,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* stop_sequences := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "stop") in
                           let* α1 :
                               core.result.Result.t
@@ -18978,9 +18819,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -19001,12 +18842,12 @@ Module openai.
                     fun γ =>
                       (let* α0 := M.read γ in
                       match α0 with
-                      | core.option.Option.Some _ =>
-                        let γ0_0 := core.option.Option.Get_Some_0 γ in
+                      | Option.Some _ =>
+                        let γ0_0 := Option.Get_Some_0 γ in
                         let* top_p := M.copy γ0_0 in
                         let* _ :
                             M.Val
-                              (core.option.Option.t serde_json.value.Value.t) :=
+                              (Option.t serde_json.value.Value.t) :=
                           let* α0 : ref str.t := M.read (mk_str "top_p") in
                           let* α1 :
                               core.result.Result.t
@@ -19020,9 +18861,9 @@ Module openai.
                                     serde_json.error.Error.t)::["unwrap"]
                                 α1) in
                           let* α3 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             M.call
-                              ((std.collections.hash.map.HashMap.t
+                              ((HashMap.t
                                     (ref str.t)
                                     serde_json.value.Value.t
                                     std.hash.random.RandomState.t)::["insert"]
@@ -19491,9 +19332,9 @@ Module openai.
                                 assistants_extra.openai.ApiErrorDetail.type :=
                                   α3;
                                 assistants_extra.openai.ApiErrorDetail.param :=
-                                  core.option.Option.None;
+                                  Option.None;
                                 assistants_extra.openai.ApiErrorDetail.code :=
-                                  core.option.Option.None;
+                                  Option.None;
                               |};
                           |})) in
                   let* α5 := M.read α4 in
@@ -19578,8 +19419,8 @@ Section ApiErrorDetail.
   Record t : Set := {
     message : String.t;
     type : String.t;
-    param : core.option.Option.t serde_json.value.Value.t;
-    code : core.option.Option.t serde_json.value.Value.t;
+    param : Option.t serde_json.value.Value.t;
+    code : Option.t serde_json.value.Value.t;
   }.
   
   Definition Get_message :=
@@ -19618,7 +19459,7 @@ Section Impl_core_fmt_Debug_for_assistants_extra_openai_ApiErrorDetail_t.
     let* α7 : ref assistants_extra.openai.ApiErrorDetail.t := M.read self in
     let* α8 : ref str.t := M.read (mk_str "code") in
     let* α9 : ref assistants_extra.openai.ApiErrorDetail.t := M.read self in
-    let* α10 : M.Val (ref (core.option.Option.t serde_json.value.Value.t)) :=
+    let* α10 : M.Val (ref (Option.t serde_json.value.Value.t)) :=
       M.alloc
         (borrow (assistants_extra.openai.ApiErrorDetail.Get_code (deref α9))) in
     M.call
@@ -19642,9 +19483,6 @@ Section Impl_core_fmt_Debug_for_assistants_extra_openai_ApiErrorDetail_t.
         α8
         (pointer_coercion "Unsize" (borrow α10))).
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -19695,8 +19533,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_openai_ApiErrorDetail_t.
   Global Instance AssociatedFunction_deserialize
       {__D : Set}
       {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
+
   }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
@@ -19741,10 +19578,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -19816,8 +19650,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
   Global Instance AssociatedFunction_visit_u64
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
+
   }.
   
   (*
@@ -19890,8 +19723,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
   Global Instance AssociatedFunction_visit_str
       {__E : Set}
       {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
   }.
   
   (*
@@ -20012,13 +19843,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
                   __E))
         ] in
     M.read α0.
-  
-  Global Instance AssociatedFunction_visit_bytes
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
-  }.
+
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -20083,12 +19908,6 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_openai___deserialize___Fi
     let* α1 : __D := M.read __deserializer in
     M.call (α0 α1 assistants_extra.openai._.deserialize.__FieldVisitor.Build).
   
-  Global Instance AssociatedFunction_deserialize
-      {__D : Set}
-      {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
-  }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
     serde.de.Deserialize.deserialize
@@ -20138,10 +19957,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let* α1 : ref str.t := M.read (mk_str "struct ApiErrorDetail") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -20160,7 +19975,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       (let* __field0 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -20168,14 +19983,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -20184,21 +19999,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -20231,12 +20046,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -20247,7 +20062,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -20256,8 +20071,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -20266,7 +20081,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -20295,7 +20110,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       let* __field1 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -20303,14 +20118,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -20319,21 +20134,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -20366,12 +20181,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -20382,7 +20197,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -20391,8 +20206,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -20401,7 +20216,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -20427,11 +20242,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 M (M.Val String.t)
             ] in
         M.copy α6 in
-      let* __field2 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+      let* __field2 : M.Val (Option.t serde_json.value.Value.t) :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t
-                  (core.option.Option.t serde_json.value.Value.t))
+                (Option.t
+                  (Option.t serde_json.value.Value.t))
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -20439,45 +20254,45 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t
-                    (core.option.Option.t serde_json.value.Value.t))
+                  (Option.t
+                    (Option.t serde_json.value.Value.t))
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t
-                    (core.option.Option.t serde_json.value.Value.t))
+                  (Option.t
+                    (Option.t serde_json.value.Value.t))
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
-              (T := core.option.Option.t serde_json.value.Value.t)
+              (T := Option.t serde_json.value.Value.t)
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t
-                (core.option.Option.t serde_json.value.Value.t))
+              (Option.t
+                (Option.t serde_json.value.Value.t))
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t
-                (core.option.Option.t serde_json.value.Value.t)) :=
+              (Option.t
+                (Option.t serde_json.value.Value.t)) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
-                  (core.option.Option.t serde_json.value.Value.t))) :=
+                (Option.t
+                  (Option.t serde_json.value.Value.t))) :=
           M.alloc α3 in
         let* α5 :
             M.Val
-              (core.option.Option.t
-                (core.option.Option.t serde_json.value.Value.t)) :=
+              (Option.t
+                (Option.t serde_json.value.Value.t)) :=
           match_operator
             α4
             [
@@ -20511,16 +20326,16 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
                   let* α5 :
-                      core.option.Option.t
-                        (core.option.Option.t serde_json.value.Value.t) :=
+                      Option.t
+                        (Option.t serde_json.value.Value.t) :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
-                      (core.option.Option.t serde_json.value.Value.t)));
+                    (Option.t
+                      (Option.t serde_json.value.Value.t)));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -20533,27 +20348,27 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
-                      (core.option.Option.t serde_json.value.Value.t)))
+                    (Option.t
+                      (Option.t serde_json.value.Value.t)))
             ] in
-        let* α6 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+        let* α6 : M.Val (Option.t serde_json.value.Value.t) :=
           match_operator
             α5
             [
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t));
+                M (M.Val (Option.t serde_json.value.Value.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -20572,19 +20387,19 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α2 : M.Val never.t :=
                     return_ (core.result.Result.Err α1) in
                   let* α3 := M.read α2 in
-                  let* α4 : core.option.Option.t serde_json.value.Value.t :=
+                  let* α4 : Option.t serde_json.value.Value.t :=
                     never_to_any α3 in
                   M.alloc α4
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t))
+                M (M.Val (Option.t serde_json.value.Value.t))
             ] in
         M.copy α6 in
-      let* __field3 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+      let* __field3 : M.Val (Option.t serde_json.value.Value.t) :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t
-                  (core.option.Option.t serde_json.value.Value.t))
+                (Option.t
+                  (Option.t serde_json.value.Value.t))
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -20592,45 +20407,45 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t
-                    (core.option.Option.t serde_json.value.Value.t))
+                  (Option.t
+                    (Option.t serde_json.value.Value.t))
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t
-                    (core.option.Option.t serde_json.value.Value.t))
+                  (Option.t
+                    (Option.t serde_json.value.Value.t))
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
-              (T := core.option.Option.t serde_json.value.Value.t)
+              (T := Option.t serde_json.value.Value.t)
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t
-                (core.option.Option.t serde_json.value.Value.t))
+              (Option.t
+                (Option.t serde_json.value.Value.t))
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t
-                (core.option.Option.t serde_json.value.Value.t)) :=
+              (Option.t
+                (Option.t serde_json.value.Value.t)) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
-                  (core.option.Option.t serde_json.value.Value.t))) :=
+                (Option.t
+                  (Option.t serde_json.value.Value.t))) :=
           M.alloc α3 in
         let* α5 :
             M.Val
-              (core.option.Option.t
-                (core.option.Option.t serde_json.value.Value.t)) :=
+              (Option.t
+                (Option.t serde_json.value.Value.t)) :=
           match_operator
             α4
             [
@@ -20664,16 +20479,16 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
                   let* α5 :
-                      core.option.Option.t
-                        (core.option.Option.t serde_json.value.Value.t) :=
+                      Option.t
+                        (Option.t serde_json.value.Value.t) :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
-                      (core.option.Option.t serde_json.value.Value.t)));
+                    (Option.t
+                      (Option.t serde_json.value.Value.t)));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -20686,27 +20501,27 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
-                      (core.option.Option.t serde_json.value.Value.t)))
+                    (Option.t
+                      (Option.t serde_json.value.Value.t)))
             ] in
-        let* α6 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+        let* α6 : M.Val (Option.t serde_json.value.Value.t) :=
           match_operator
             α5
             [
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t));
+                M (M.Val (Option.t serde_json.value.Value.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -20725,19 +20540,19 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α2 : M.Val never.t :=
                     return_ (core.result.Result.Err α1) in
                   let* α3 := M.read α2 in
-                  let* α4 : core.option.Option.t serde_json.value.Value.t :=
+                  let* α4 : Option.t serde_json.value.Value.t :=
                     never_to_any α3 in
                   M.alloc α4
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t))
+                M (M.Val (Option.t serde_json.value.Value.t))
             ] in
         M.copy α6 in
       let* α0 : String.t := M.read __field0 in
       let* α1 : String.t := M.read __field1 in
-      let* α2 : core.option.Option.t serde_json.value.Value.t :=
+      let* α2 : Option.t serde_json.value.Value.t :=
         M.read __field2 in
-      let* α3 : core.option.Option.t serde_json.value.Value.t :=
+      let* α3 : Option.t serde_json.value.Value.t :=
         M.read __field3 in
       let* α0 :
           M.Val
@@ -20752,12 +20567,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_seq
-      {__A : Set}
-      {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
-  }.
   
   (*
   Deserialize
@@ -20773,25 +20582,25 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
       let* __field2 :
           M.Val
-            (core.option.Option.t
-              (core.option.Option.t serde_json.value.Value.t)) :=
-        M.alloc core.option.Option.None in
+            (Option.t
+              (Option.t serde_json.value.Value.t)) :=
+        M.alloc Option.None in
       let* __field3 :
           M.Val
-            (core.option.Option.t
-              (core.option.Option.t serde_json.value.Value.t)) :=
-        M.alloc core.option.Option.None in
+            (Option.t
+              (Option.t serde_json.value.Value.t)) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)
                   _)
                 ->
@@ -20800,7 +20609,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -20808,7 +20617,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -20818,26 +20627,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -20875,7 +20684,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.openai._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -20883,7 +20692,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -20897,7 +20706,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t))
               ] in
           match_operator
@@ -20906,8 +20715,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -20921,7 +20730,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -21053,7 +20862,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -21067,7 +20876,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -21198,7 +21007,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -21212,8 +21021,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
-                                      (core.option.Option.t
+                                ((Option.t
+                                      (Option.t
                                         serde_json.value.Value.t))::["is_some"]
                                   (borrow __field2)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -21236,7 +21045,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 :
                                 (core.result.Result.t
-                                    (core.option.Option.t
+                                    (Option.t
                                       serde_json.value.Value.t)
                                     _)
                                   ->
@@ -21245,7 +21054,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                 core.ops.try_trait.Try.branch
                                   (Self :=
                                     core.result.Result.t
-                                      (core.option.Option.t
+                                      (Option.t
                                         serde_json.value.Value.t)
                                       _)
                                   (Trait := ℐ))) in
@@ -21253,19 +21062,19 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                 (mut_ref __A) ->
                                   M
                                     (core.result.Result.t
-                                      (core.option.Option.t
+                                      (Option.t
                                         serde_json.value.Value.t)
                                       _) :=
                               ltac:(M.get_method (fun ℐ =>
                                 serde.de.MapAccess.next_value
                                   (Self := __A)
                                   (V :=
-                                    core.option.Option.t
+                                    Option.t
                                       serde_json.value.Value.t)
                                   (Trait := ℐ))) in
                             let* α2 :
                                 core.result.Result.t
-                                  (core.option.Option.t
+                                  (Option.t
                                     serde_json.value.Value.t)
                                   _ :=
                               M.call (α1 (borrow_mut __map)) in
@@ -21274,7 +21083,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                   (core.result.Result.t
                                     core.convert.Infallible.t
                                     _)
-                                  (core.option.Option.t
+                                  (Option.t
                                     serde_json.value.Value.t) :=
                               M.call (α0 α2) in
                             let* α4 :
@@ -21283,12 +21092,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     (core.result.Result.t
                                       core.convert.Infallible.t
                                       _)
-                                    (core.option.Option.t
+                                    (Option.t
                                       serde_json.value.Value.t)) :=
                               M.alloc α3 in
                             let* α5 :
                                 M.Val
-                                  (core.option.Option.t
+                                  (Option.t
                                     serde_json.value.Value.t) :=
                               match_operator
                                 α4
@@ -21337,7 +21146,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                       let* α3 : M.Val never.t := return_ α2 in
                                       let* α4 := M.read α3 in
                                       let* α5 :
-                                          core.option.Option.t
+                                          Option.t
                                             serde_json.value.Value.t :=
                                         never_to_any α4 in
                                       M.alloc α5
@@ -21345,7 +21154,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     end) :
                                     M
                                       (M.Val
-                                        (core.option.Option.t
+                                        (Option.t
                                           serde_json.value.Value.t));
                                   fun γ =>
                                     (let* α0 := M.read γ in
@@ -21363,13 +21172,13 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     end) :
                                     M
                                       (M.Val
-                                        (core.option.Option.t
+                                        (Option.t
                                           serde_json.value.Value.t))
                                 ] in
                             let* α6 :
-                                core.option.Option.t serde_json.value.Value.t :=
+                                Option.t serde_json.value.Value.t :=
                               M.read α5 in
-                            assign __field2 (core.option.Option.Some α6) in
+                            assign __field2 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -21383,8 +21192,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
-                                      (core.option.Option.t
+                                ((Option.t
+                                      (Option.t
                                         serde_json.value.Value.t))::["is_some"]
                                   (borrow __field3)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -21407,7 +21216,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 :
                                 (core.result.Result.t
-                                    (core.option.Option.t
+                                    (Option.t
                                       serde_json.value.Value.t)
                                     _)
                                   ->
@@ -21416,7 +21225,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                 core.ops.try_trait.Try.branch
                                   (Self :=
                                     core.result.Result.t
-                                      (core.option.Option.t
+                                      (Option.t
                                         serde_json.value.Value.t)
                                       _)
                                   (Trait := ℐ))) in
@@ -21424,19 +21233,19 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                 (mut_ref __A) ->
                                   M
                                     (core.result.Result.t
-                                      (core.option.Option.t
+                                      (Option.t
                                         serde_json.value.Value.t)
                                       _) :=
                               ltac:(M.get_method (fun ℐ =>
                                 serde.de.MapAccess.next_value
                                   (Self := __A)
                                   (V :=
-                                    core.option.Option.t
+                                    Option.t
                                       serde_json.value.Value.t)
                                   (Trait := ℐ))) in
                             let* α2 :
                                 core.result.Result.t
-                                  (core.option.Option.t
+                                  (Option.t
                                     serde_json.value.Value.t)
                                   _ :=
                               M.call (α1 (borrow_mut __map)) in
@@ -21445,7 +21254,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                   (core.result.Result.t
                                     core.convert.Infallible.t
                                     _)
-                                  (core.option.Option.t
+                                  (Option.t
                                     serde_json.value.Value.t) :=
                               M.call (α0 α2) in
                             let* α4 :
@@ -21454,12 +21263,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     (core.result.Result.t
                                       core.convert.Infallible.t
                                       _)
-                                    (core.option.Option.t
+                                    (Option.t
                                       serde_json.value.Value.t)) :=
                               M.alloc α3 in
                             let* α5 :
                                 M.Val
-                                  (core.option.Option.t
+                                  (Option.t
                                     serde_json.value.Value.t) :=
                               match_operator
                                 α4
@@ -21508,7 +21317,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                       let* α3 : M.Val never.t := return_ α2 in
                                       let* α4 := M.read α3 in
                                       let* α5 :
-                                          core.option.Option.t
+                                          Option.t
                                             serde_json.value.Value.t :=
                                         never_to_any α4 in
                                       M.alloc α5
@@ -21516,7 +21325,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     end) :
                                     M
                                       (M.Val
-                                        (core.option.Option.t
+                                        (Option.t
                                           serde_json.value.Value.t));
                                   fun γ =>
                                     (let* α0 := M.read γ in
@@ -21534,13 +21343,13 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     end) :
                                     M
                                       (M.Val
-                                        (core.option.Option.t
+                                        (Option.t
                                           serde_json.value.Value.t))
                                 ] in
                             let* α6 :
-                                core.option.Option.t serde_json.value.Value.t :=
+                                Option.t serde_json.value.Value.t :=
                               M.read α5 in
-                            assign __field3 (core.option.Option.Some α6) in
+                            assign __field3 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -21681,8 +21490,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -21691,7 +21500,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -21784,8 +21593,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -21794,7 +21603,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -21879,28 +21688,28 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 M (M.Val String.t)
             ] in
         M.copy α0 in
-      let* __field2 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
-        let* α0 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+      let* __field2 : M.Val (Option.t serde_json.value.Value.t) :=
+        let* α0 : M.Val (Option.t serde_json.value.Value.t) :=
           match_operator
             __field2
             [
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field2 := M.copy γ0_0 in
                   M.pure __field2
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t));
+                M (M.Val (Option.t serde_json.value.Value.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t
-                          (core.option.Option.t serde_json.value.Value.t)
+                          (Option.t serde_json.value.Value.t)
                           _)
                         ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -21908,25 +21717,25 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                       core.ops.try_trait.Try.branch
                         (Self :=
                           core.result.Result.t
-                            (core.option.Option.t serde_json.value.Value.t)
+                            (Option.t serde_json.value.Value.t)
                             _)
                         (Trait := ℐ))) in
                   let* α1 : ref str.t := M.read (mk_str "param") in
                   let* α2 :
                       core.result.Result.t
-                        (core.option.Option.t serde_json.value.Value.t)
+                        (Option.t serde_json.value.Value.t)
                         _ :=
                     M.call (serde.__private.de.missing_field α1) in
                   let* α3 :
                       core.ops.control_flow.ControlFlow.t
                         (core.result.Result.t core.convert.Infallible.t _)
-                        (core.option.Option.t serde_json.value.Value.t) :=
+                        (Option.t serde_json.value.Value.t) :=
                     M.call (α0 α2) in
                   let* α4 :
                       M.Val
                         (core.ops.control_flow.ControlFlow.t
                           (core.result.Result.t core.convert.Infallible.t _)
-                          (core.option.Option.t serde_json.value.Value.t)) :=
+                          (Option.t serde_json.value.Value.t)) :=
                     M.alloc α3 in
                   match_operator
                     α4
@@ -21969,14 +21778,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* α3 : M.Val never.t := return_ α2 in
                           let* α4 := M.read α3 in
                           let* α5 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             never_to_any α4 in
                           M.alloc α5
                         | _ => M.break_match
                         end) :
                         M
                           (M.Val
-                            (core.option.Option.t serde_json.value.Value.t));
+                            (Option.t serde_json.value.Value.t));
                       fun γ =>
                         (let* α0 := M.read γ in
                         match α0 with
@@ -21990,35 +21799,35 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                         end) :
                         M
                           (M.Val
-                            (core.option.Option.t serde_json.value.Value.t))
+                            (Option.t serde_json.value.Value.t))
                     ]
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t))
+                M (M.Val (Option.t serde_json.value.Value.t))
             ] in
         M.copy α0 in
-      let* __field3 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
-        let* α0 : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+      let* __field3 : M.Val (Option.t serde_json.value.Value.t) :=
+        let* α0 : M.Val (Option.t serde_json.value.Value.t) :=
           match_operator
             __field3
             [
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field3 := M.copy γ0_0 in
                   M.pure __field3
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t));
+                M (M.Val (Option.t serde_json.value.Value.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t
-                          (core.option.Option.t serde_json.value.Value.t)
+                          (Option.t serde_json.value.Value.t)
                           _)
                         ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -22026,25 +21835,25 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                       core.ops.try_trait.Try.branch
                         (Self :=
                           core.result.Result.t
-                            (core.option.Option.t serde_json.value.Value.t)
+                            (Option.t serde_json.value.Value.t)
                             _)
                         (Trait := ℐ))) in
                   let* α1 : ref str.t := M.read (mk_str "code") in
                   let* α2 :
                       core.result.Result.t
-                        (core.option.Option.t serde_json.value.Value.t)
+                        (Option.t serde_json.value.Value.t)
                         _ :=
                     M.call (serde.__private.de.missing_field α1) in
                   let* α3 :
                       core.ops.control_flow.ControlFlow.t
                         (core.result.Result.t core.convert.Infallible.t _)
-                        (core.option.Option.t serde_json.value.Value.t) :=
+                        (Option.t serde_json.value.Value.t) :=
                     M.call (α0 α2) in
                   let* α4 :
                       M.Val
                         (core.ops.control_flow.ControlFlow.t
                           (core.result.Result.t core.convert.Infallible.t _)
-                          (core.option.Option.t serde_json.value.Value.t)) :=
+                          (Option.t serde_json.value.Value.t)) :=
                     M.alloc α3 in
                   match_operator
                     α4
@@ -22087,14 +21896,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* α3 : M.Val never.t := return_ α2 in
                           let* α4 := M.read α3 in
                           let* α5 :
-                              core.option.Option.t serde_json.value.Value.t :=
+                              Option.t serde_json.value.Value.t :=
                             never_to_any α4 in
                           M.alloc α5
                         | _ => M.break_match
                         end) :
                         M
                           (M.Val
-                            (core.option.Option.t serde_json.value.Value.t));
+                            (Option.t serde_json.value.Value.t));
                       fun γ =>
                         (let* α0 := M.read γ in
                         match α0 with
@@ -22108,18 +21917,18 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                         end) :
                         M
                           (M.Val
-                            (core.option.Option.t serde_json.value.Value.t))
+                            (Option.t serde_json.value.Value.t))
                     ]
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t serde_json.value.Value.t))
+                M (M.Val (Option.t serde_json.value.Value.t))
             ] in
         M.copy α0 in
       let* α0 : String.t := M.read __field0 in
       let* α1 : String.t := M.read __field1 in
-      let* α2 : core.option.Option.t serde_json.value.Value.t :=
+      let* α2 : Option.t serde_json.value.Value.t :=
         M.read __field2 in
-      let* α3 : core.option.Option.t serde_json.value.Value.t :=
+      let* α3 : Option.t serde_json.value.Value.t :=
         M.read __field3 in
       let* α0 :
           M.Val
@@ -22134,12 +21943,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_map
-      {__A : Set}
-      {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
-  }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -22230,9 +22033,7 @@ Section Impl_core_fmt_Debug_for_assistants_extra_openai_ApiErrorResponse_t.
         α2
         (pointer_coercion "Unsize" (borrow α4))).
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
+
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -22280,12 +22081,7 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_openai_ApiErrorResponse_t
             core.marker.PhantomData.Build;
         |}).
   
-  Global Instance AssociatedFunction_deserialize
-      {__D : Set}
-      {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
-  }.
+
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
     serde.de.Deserialize.deserialize
@@ -22320,10 +22116,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -22365,12 +22158,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_u64
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
-  }.
   
   (*
   Deserialize
@@ -22412,12 +22199,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_str
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
-  }.
+
   
   (*
   Deserialize
@@ -22472,12 +22254,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_bytes
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
-  }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -22556,10 +22332,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let* α1 : ref str.t := M.read (mk_str "struct ApiErrorResponse") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -22578,7 +22351,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       (let* __field0 : M.Val assistants_extra.openai.ApiErrorDetail.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t assistants_extra.openai.ApiErrorDetail.t)
+                (Option.t assistants_extra.openai.ApiErrorDetail.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -22586,7 +22359,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai.ApiErrorDetail.t)
                   _)
               (Trait := ℐ))) in
@@ -22594,7 +22367,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai.ApiErrorDetail.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
@@ -22604,24 +22377,24 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t assistants_extra.openai.ApiErrorDetail.t)
+              (Option.t assistants_extra.openai.ApiErrorDetail.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t assistants_extra.openai.ApiErrorDetail.t) :=
+              (Option.t assistants_extra.openai.ApiErrorDetail.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai.ApiErrorDetail.t)) :=
           M.alloc α3 in
         let* α5 :
             M.Val
-              (core.option.Option.t assistants_extra.openai.ApiErrorDetail.t) :=
+              (Option.t assistants_extra.openai.ApiErrorDetail.t) :=
           match_operator
             α4
             [
@@ -22655,7 +22428,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
                   let* α5 :
-                      core.option.Option.t
+                      Option.t
                         assistants_extra.openai.ApiErrorDetail.t :=
                     never_to_any α4 in
                   M.alloc α5
@@ -22663,7 +22436,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai.ApiErrorDetail.t));
               fun γ =>
                 (let* α0 := M.read γ in
@@ -22677,7 +22450,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai.ApiErrorDetail.t))
             ] in
         let* α6 : M.Val assistants_extra.openai.ApiErrorDetail.t :=
@@ -22687,8 +22460,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -22697,7 +22470,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -22735,12 +22508,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             {| assistants_extra.openai.ApiErrorResponse.error := α0; |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_seq
-      {__A : Set}
-      {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
-  }.
+
   
   (*
   Deserialize
@@ -22758,13 +22526,13 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     M.catch_return
       (let* __field0 :
           M.Val
-            (core.option.Option.t assistants_extra.openai.ApiErrorDetail.t) :=
-        M.alloc core.option.Option.None in
+            (Option.t assistants_extra.openai.ApiErrorDetail.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)
                   _)
                 ->
@@ -22773,7 +22541,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -22781,7 +22549,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -22791,26 +22559,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -22848,7 +22616,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.openai._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -22856,7 +22624,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -22870,7 +22638,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t))
               ] in
           match_operator
@@ -22879,8 +22647,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -22894,7 +22662,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       assistants_extra.openai.ApiErrorDetail.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -23039,7 +22807,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                             let* α6 :
                                 assistants_extra.openai.ApiErrorDetail.t :=
                               M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -23180,8 +22948,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -23190,7 +22958,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t
                           assistants_extra.openai.ApiErrorDetail.t
@@ -23296,12 +23064,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             {| assistants_extra.openai.ApiErrorResponse.error := α0; |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_map
-      {__A : Set}
-      {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
-  }.
+
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -23393,9 +23156,6 @@ Section Impl_core_fmt_Debug_for_assistants_extra_openai_Message_t.
         α4
         (pointer_coercion "Unsize" (borrow α6))).
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
   
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
@@ -23443,12 +23203,6 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_openai_Message_t.
             core.marker.PhantomData.Build;
         |}).
   
-  Global Instance AssociatedFunction_deserialize
-      {__D : Set}
-      {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
-  }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
     serde.de.Deserialize.deserialize
@@ -23483,10 +23237,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
+
   
   (*
   Deserialize
@@ -23537,12 +23288,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_u64
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
-  }.
   
   (*
   Deserialize
@@ -23593,12 +23338,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_str
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
-  }.
   
   (*
   Deserialize
@@ -23676,12 +23415,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_bytes
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
-  }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -23759,10 +23492,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let* α1 : ref str.t := M.read (mk_str "struct Message") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -23781,7 +23510,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       (let* __field0 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -23789,14 +23518,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -23805,21 +23534,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -23852,12 +23581,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -23868,7 +23597,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -23877,8 +23606,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -23887,7 +23616,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -23915,7 +23644,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       let* __field1 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -23923,14 +23652,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -23939,21 +23668,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -23986,12 +23715,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -24002,7 +23731,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -24011,8 +23740,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -24021,7 +23750,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -24058,12 +23787,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_seq
-      {__A : Set}
-      {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
-  }.
   
   (*
   Deserialize
@@ -24079,15 +23802,15 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)
                   _)
                 ->
@@ -24096,7 +23819,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -24104,7 +23827,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -24114,26 +23837,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -24171,7 +23894,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.openai._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -24179,7 +23902,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -24193,7 +23916,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t))
               ] in
           match_operator
@@ -24202,8 +23925,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -24217,7 +23940,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -24348,7 +24071,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -24362,7 +24085,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -24494,7 +24217,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -24635,8 +24358,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -24645,7 +24368,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -24738,8 +24461,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -24748,7 +24471,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -24845,12 +24568,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_map
-      {__A : Set}
-      {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
-  }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -25152,12 +24869,6 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_openai_Message_t.
       let* α0 : M.Val (core.result.Result.t _ _) := M.alloc α2 in
       M.read α0).
   
-  Global Instance AssociatedFunction_serialize
-      {__S : Set}
-      {ℋ_0 : serde.ser.Serializer.Trait __S} :
-    Notations.DoubleColon Self "serialize" := {
-    Notations.double_colon := serialize (__S := __S);
-  }.
   
   Global Instance ℐ : serde.ser.Serialize.Trait Self := {
     serde.ser.Serialize.serialize
@@ -25198,10 +24909,6 @@ Section Impl_core_clone_Clone_for_assistants_extra_openai_Message_t.
         assistants_extra.openai.Message.content := α5;
       |}.
   
-  Global Instance AssociatedFunction_clone :
-    Notations.DoubleColon Self "clone" := {
-    Notations.double_colon := clone;
-  }.
   
   Global Instance ℐ : core.clone.Clone.Required.Trait Self := {
     core.clone.Clone.clone := clone;
@@ -25262,10 +24969,6 @@ Section Impl_core_fmt_Debug_for_assistants_extra_openai_Choice_t.
         α4
         (pointer_coercion "Unsize" (borrow α6))).
   
-  Global Instance AssociatedFunction_fmt : Notations.DoubleColon Self "fmt" := {
-    Notations.double_colon := fmt;
-  }.
-  
   Global Instance ℐ : core.fmt.Debug.Trait Self := {
     core.fmt.Debug.fmt := fmt;
   }.
@@ -25312,12 +25015,6 @@ Section Impl_serde_de_Deserialize_for_assistants_extra_openai_Choice_t.
             core.marker.PhantomData.Build;
         |}).
   
-  Global Instance AssociatedFunction_deserialize
-      {__D : Set}
-      {ℋ_0 : serde.de.Deserializer.Trait __D} :
-    Notations.DoubleColon Self "deserialize" := {
-    Notations.double_colon := deserialize (__D := __D);
-  }.
   
   Global Instance ℐ : serde.de.Deserialize.Required.Trait Self := {
     serde.de.Deserialize.deserialize
@@ -25352,10 +25049,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
     let* α1 : ref str.t := M.read (mk_str "field identifier") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -25406,12 +25099,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_u64
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_u64" := {
-    Notations.double_colon := visit_u64 (__E := __E);
-  }.
   
   (*
   Deserialize
@@ -25462,12 +25149,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_str
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_str" := {
-    Notations.double_colon := visit_str (__E := __E);
-  }.
   
   (*
   Deserialize
@@ -25554,12 +25235,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___FieldV
         ] in
     M.read α0.
   
-  Global Instance AssociatedFunction_visit_bytes
-      {__E : Set}
-      {ℋ_0 : serde.de.Error.Trait __E} :
-    Notations.DoubleColon Self "visit_bytes" := {
-    Notations.double_colon := visit_bytes (__E := __E);
-  }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -25637,10 +25312,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let* α1 : ref str.t := M.read (mk_str "struct Choice") in
     M.call (core.fmt.Formatter.t::["write_str"] α0 α1).
   
-  Global Instance AssociatedFunction_expecting :
-    Notations.DoubleColon Self "expecting" := {
-    Notations.double_colon := expecting;
-  }.
   
   (*
   Deserialize
@@ -25659,7 +25330,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       (let* __field0 : M.Val assistants_extra.openai.Message.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t assistants_extra.openai.Message.t)
+                (Option.t assistants_extra.openai.Message.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -25667,14 +25338,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t assistants_extra.openai.Message.t)
+                  (Option.t assistants_extra.openai.Message.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t assistants_extra.openai.Message.t)
+                  (Option.t assistants_extra.openai.Message.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -25683,22 +25354,22 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t assistants_extra.openai.Message.t)
+              (Option.t assistants_extra.openai.Message.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t assistants_extra.openai.Message.t) :=
+              (Option.t assistants_extra.openai.Message.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t assistants_extra.openai.Message.t)) :=
+                (Option.t assistants_extra.openai.Message.t)) :=
           M.alloc α3 in
         let* α5 :
-            M.Val (core.option.Option.t assistants_extra.openai.Message.t) :=
+            M.Val (Option.t assistants_extra.openai.Message.t) :=
           match_operator
             α4
             [
@@ -25730,14 +25401,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
                   let* α5 :
-                      core.option.Option.t assistants_extra.openai.Message.t :=
+                      Option.t assistants_extra.openai.Message.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t assistants_extra.openai.Message.t));
+                    (Option.t assistants_extra.openai.Message.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -25750,7 +25421,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t assistants_extra.openai.Message.t))
+                    (Option.t assistants_extra.openai.Message.t))
             ] in
         let* α6 : M.Val assistants_extra.openai.Message.t :=
           match_operator
@@ -25759,8 +25430,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -25769,7 +25440,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -25797,7 +25468,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       let* __field1 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -25805,14 +25476,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -25821,21 +25492,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -25866,12 +25537,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -25882,7 +25553,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -25891,8 +25562,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -25901,7 +25572,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -25937,12 +25608,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_seq
-      {__A : Set}
-      {ℋ_0 : serde.de.SeqAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_seq" := {
-    Notations.double_colon := visit_seq (__A := __A);
-  }.
   
   (*
   Deserialize
@@ -25959,15 +25624,15 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
       (let* __field0 :
-          M.Val (core.option.Option.t assistants_extra.openai.Message.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
+          M.Val (Option.t assistants_extra.openai.Message.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)
                   _)
                 ->
@@ -25976,7 +25641,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -25984,7 +25649,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -25994,26 +25659,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -26051,7 +25716,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.openai._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -26059,7 +25724,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -26073,7 +25738,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t))
               ] in
           match_operator
@@ -26082,8 +25747,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -26097,7 +25762,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       assistants_extra.openai.Message.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -26235,7 +25900,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                 ] in
                             let* α6 : assistants_extra.openai.Message.t :=
                               M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -26249,7 +25914,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -26381,7 +26046,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -26522,8 +26187,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -26532,7 +26197,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t assistants_extra.openai.Message.t _)
                         ->
@@ -26633,8 +26298,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -26643,7 +26308,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -26740,12 +26405,6 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             |}) in
       M.read α0).
   
-  Global Instance AssociatedFunction_visit_map
-      {__A : Set}
-      {ℋ_0 : serde.de.MapAccess.Trait __A} :
-    Notations.DoubleColon Self "visit_map" := {
-    Notations.double_colon := visit_map (__A := __A);
-  }.
   
   Global Instance ℐ : serde.de.Visitor.Required.Trait Self := {
     serde.de.Visitor.Value := Value;
@@ -27049,12 +26708,6 @@ Section Impl_serde_ser_Serialize_for_assistants_extra_openai_Choice_t.
       let* α0 : M.Val (core.result.Result.t _ _) := M.alloc α2 in
       M.read α0).
   
-  Global Instance AssociatedFunction_serialize
-      {__S : Set}
-      {ℋ_0 : serde.ser.Serializer.Trait __S} :
-    Notations.DoubleColon Self "serialize" := {
-    Notations.double_colon := serialize (__S := __S);
-  }.
   
   Global Instance ℐ : serde.ser.Serialize.Trait Self := {
     serde.ser.Serialize.serialize
@@ -27581,34 +27234,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     M.catch_return
       (let* __field0 : M.Val i32.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i32.t) _) ->
+            (core.result.Result.t (Option.t i32.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i32.t) _)
+              (Self := core.result.Result.t (Option.t i32.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i32.t) _) :=
+              M (core.result.Result.t (Option.t i32.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i32.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i32.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i32.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i32.t) :=
+              (Option.t i32.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i32.t)) :=
+                (Option.t i32.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i32.t) :=
+        let* α5 : M.Val (Option.t i32.t) :=
           match_operator
             α4
             [
@@ -27639,11 +27292,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i32.t := never_to_any α4 in
+                  let* α5 : Option.t i32.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t));
+                M (M.Val (Option.t i32.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -27654,7 +27307,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t))
+                M (M.Val (Option.t i32.t))
             ] in
         let* α6 : M.Val i32.t :=
           match_operator
@@ -27663,8 +27316,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -27673,7 +27326,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -27699,34 +27352,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
         M.copy α6 in
       let* __field1 : M.Val i32.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i32.t) _) ->
+            (core.result.Result.t (Option.t i32.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i32.t) _)
+              (Self := core.result.Result.t (Option.t i32.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i32.t) _) :=
+              M (core.result.Result.t (Option.t i32.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i32.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i32.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i32.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i32.t) :=
+              (Option.t i32.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i32.t)) :=
+                (Option.t i32.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i32.t) :=
+        let* α5 : M.Val (Option.t i32.t) :=
           match_operator
             α4
             [
@@ -27757,11 +27410,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i32.t := never_to_any α4 in
+                  let* α5 : Option.t i32.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t));
+                M (M.Val (Option.t i32.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -27772,7 +27425,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t))
+                M (M.Val (Option.t i32.t))
             ] in
         let* α6 : M.Val i32.t :=
           match_operator
@@ -27781,8 +27434,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -27791,7 +27444,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -27817,34 +27470,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
         M.copy α6 in
       let* __field2 : M.Val i32.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i32.t) _) ->
+            (core.result.Result.t (Option.t i32.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i32.t) _)
+              (Self := core.result.Result.t (Option.t i32.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i32.t) _) :=
+              M (core.result.Result.t (Option.t i32.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i32.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i32.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i32.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i32.t) :=
+              (Option.t i32.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i32.t)) :=
+                (Option.t i32.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i32.t) :=
+        let* α5 : M.Val (Option.t i32.t) :=
           match_operator
             α4
             [
@@ -27875,11 +27528,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i32.t := never_to_any α4 in
+                  let* α5 : Option.t i32.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t));
+                M (M.Val (Option.t i32.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -27890,7 +27543,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i32.t))
+                M (M.Val (Option.t i32.t))
             ] in
         let* α6 : M.Val i32.t :=
           match_operator
@@ -27899,8 +27552,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -27909,7 +27562,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -27968,17 +27621,17 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t i32.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t i32.t) :=
-        M.alloc core.option.Option.None in
-      let* __field2 : M.Val (core.option.Option.t i32.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t i32.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t i32.t) :=
+        M.alloc Option.None in
+      let* __field2 : M.Val (Option.t i32.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)
                   _)
                 ->
@@ -27987,7 +27640,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -27995,7 +27648,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -28005,26 +27658,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -28062,7 +27715,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.openai._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -28070,7 +27723,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -28084,7 +27737,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t))
               ] in
           match_operator
@@ -28093,8 +27746,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -28108,7 +27761,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["is_some"]
+                                ((Option.t i32.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -28230,7 +27883,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val i32.t)
                                 ] in
                             let* α6 : i32.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -28244,7 +27897,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["is_some"]
+                                ((Option.t i32.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -28366,7 +28019,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val i32.t)
                                 ] in
                             let* α6 : i32.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -28380,7 +28033,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["is_some"]
+                                ((Option.t i32.t)::["is_some"]
                                   (borrow __field2)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -28502,7 +28155,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val i32.t)
                                 ] in
                             let* α6 : i32.t := M.read α5 in
-                            assign __field2 (core.option.Option.Some α6) in
+                            assign __field2 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -28643,8 +28296,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -28653,7 +28306,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i32.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -28746,8 +28399,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -28756,7 +28409,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i32.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -28849,8 +28502,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field2 := M.copy γ0_0 in
                   M.pure __field2
                 | _ => M.break_match
@@ -28859,7 +28512,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i32.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -30031,7 +29684,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       (let* __field0 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -30039,14 +29692,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -30055,21 +29708,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -30102,12 +29755,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -30118,7 +29771,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -30127,8 +29780,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -30137,7 +29790,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -30166,7 +29819,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       let* __field1 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -30174,14 +29827,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -30190,21 +29843,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -30237,12 +29890,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -30253,7 +29906,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -30262,8 +29915,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -30272,7 +29925,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -30300,34 +29953,34 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
         M.copy α6 in
       let* __field2 : M.Val i64.t :=
         let* α0 :
-            (core.result.Result.t (core.option.Option.t i64.t) _) ->
+            (core.result.Result.t (Option.t i64.t) _) ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
           ltac:(M.get_method (fun ℐ =>
             core.ops.try_trait.Try.branch
-              (Self := core.result.Result.t (core.option.Option.t i64.t) _)
+              (Self := core.result.Result.t (Option.t i64.t) _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
-              M (core.result.Result.t (core.option.Option.t i64.t) _) :=
+              M (core.result.Result.t (Option.t i64.t) _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
               (Self := __A)
               (T := i64.t)
               (Trait := ℐ))) in
-        let* α2 : core.result.Result.t (core.option.Option.t i64.t) _ :=
+        let* α2 : core.result.Result.t (Option.t i64.t) _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t i64.t) :=
+              (Option.t i64.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t i64.t)) :=
+                (Option.t i64.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t i64.t) :=
+        let* α5 : M.Val (Option.t i64.t) :=
           match_operator
             α4
             [
@@ -30360,11 +30013,11 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t i64.t := never_to_any α4 in
+                  let* α5 : Option.t i64.t := never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i64.t));
+                M (M.Val (Option.t i64.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -30375,7 +30028,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t i64.t))
+                M (M.Val (Option.t i64.t))
             ] in
         let* α6 : M.Val i64.t :=
           match_operator
@@ -30384,8 +30037,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -30394,7 +30047,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -30423,7 +30076,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       let* __field3 : M.Val String.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t String.t)
+                (Option.t String.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -30431,14 +30084,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t String.t)
+                  (Option.t String.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -30447,21 +30100,21 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t String.t)
+              (Option.t String.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t String.t) :=
+              (Option.t String.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t String.t)) :=
+                (Option.t String.t)) :=
           M.alloc α3 in
-        let* α5 : M.Val (core.option.Option.t String.t) :=
+        let* α5 : M.Val (Option.t String.t) :=
           match_operator
             α4
             [
@@ -30494,12 +30147,12 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     M.call (α0 α1) in
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
-                  let* α5 : core.option.Option.t String.t :=
+                  let* α5 : Option.t String.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t));
+                M (M.Val (Option.t String.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -30510,7 +30163,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t String.t))
+                M (M.Val (Option.t String.t))
             ] in
         let* α6 : M.Val String.t :=
           match_operator
@@ -30519,8 +30172,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -30529,7 +30182,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -30562,7 +30215,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               alloc.alloc.Global.t) :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   (Vec.t
                     assistants_extra.openai.Choice.t
                     alloc.alloc.Global.t))
@@ -30573,7 +30226,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       assistants_extra.openai.Choice.t
                       alloc.alloc.Global.t))
@@ -30583,7 +30236,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       assistants_extra.openai.Choice.t
                       alloc.alloc.Global.t))
@@ -30598,7 +30251,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t
+              (Option.t
                 (Vec.t
                   assistants_extra.openai.Choice.t
                   alloc.alloc.Global.t))
@@ -30607,7 +30260,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t
+              (Option.t
                 (Vec.t
                   assistants_extra.openai.Choice.t
                   alloc.alloc.Global.t)) :=
@@ -30616,14 +30269,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   (Vec.t
                     assistants_extra.openai.Choice.t
                     alloc.alloc.Global.t))) :=
           M.alloc α3 in
         let* α5 :
             M.Val
-              (core.option.Option.t
+              (Option.t
                 (Vec.t
                   assistants_extra.openai.Choice.t
                   alloc.alloc.Global.t)) :=
@@ -30660,7 +30313,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
                   let* α5 :
-                      core.option.Option.t
+                      Option.t
                         (Vec.t
                           assistants_extra.openai.Choice.t
                           alloc.alloc.Global.t) :=
@@ -30670,7 +30323,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         assistants_extra.openai.Choice.t
                         alloc.alloc.Global.t)));
@@ -30686,7 +30339,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         assistants_extra.openai.Choice.t
                         alloc.alloc.Global.t)))
@@ -30702,8 +30355,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -30716,7 +30369,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -30753,7 +30406,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
       let* __field5 : M.Val assistants_extra.openai.Usage.t :=
         let* α0 :
             (core.result.Result.t
-                (core.option.Option.t assistants_extra.openai.Usage.t)
+                (Option.t assistants_extra.openai.Usage.t)
                 _)
               ->
               M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -30761,14 +30414,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
             core.ops.try_trait.Try.branch
               (Self :=
                 core.result.Result.t
-                  (core.option.Option.t assistants_extra.openai.Usage.t)
+                  (Option.t assistants_extra.openai.Usage.t)
                   _)
               (Trait := ℐ))) in
         let* α1 :
             (mut_ref __A) ->
               M
                 (core.result.Result.t
-                  (core.option.Option.t assistants_extra.openai.Usage.t)
+                  (Option.t assistants_extra.openai.Usage.t)
                   _) :=
           ltac:(M.get_method (fun ℐ =>
             serde.de.SeqAccess.next_element
@@ -30777,22 +30430,22 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (Trait := ℐ))) in
         let* α2 :
             core.result.Result.t
-              (core.option.Option.t assistants_extra.openai.Usage.t)
+              (Option.t assistants_extra.openai.Usage.t)
               _ :=
           M.call (α1 (borrow_mut __seq)) in
         let* α3 :
             core.ops.control_flow.ControlFlow.t
               (core.result.Result.t core.convert.Infallible.t _)
-              (core.option.Option.t assistants_extra.openai.Usage.t) :=
+              (Option.t assistants_extra.openai.Usage.t) :=
           M.call (α0 α2) in
         let* α4 :
             M.Val
               (core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t assistants_extra.openai.Usage.t)) :=
+                (Option.t assistants_extra.openai.Usage.t)) :=
           M.alloc α3 in
         let* α5 :
-            M.Val (core.option.Option.t assistants_extra.openai.Usage.t) :=
+            M.Val (Option.t assistants_extra.openai.Usage.t) :=
           match_operator
             α4
             [
@@ -30826,14 +30479,14 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   let* α3 : M.Val never.t := return_ α2 in
                   let* α4 := M.read α3 in
                   let* α5 :
-                      core.option.Option.t assistants_extra.openai.Usage.t :=
+                      Option.t assistants_extra.openai.Usage.t :=
                     never_to_any α4 in
                   M.alloc α5
                 | _ => M.break_match
                 end) :
                 M
                   (M.Val
-                    (core.option.Option.t assistants_extra.openai.Usage.t));
+                    (Option.t assistants_extra.openai.Usage.t));
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
@@ -30844,7 +30497,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   M.pure val
                 | _ => M.break_match
                 end) :
-                M (M.Val (core.option.Option.t assistants_extra.openai.Usage.t))
+                M (M.Val (Option.t assistants_extra.openai.Usage.t))
             ] in
         let* α6 : M.Val assistants_extra.openai.Usage.t :=
           match_operator
@@ -30853,8 +30506,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __value := M.copy γ0_0 in
                   M.pure __value
                 | _ => M.break_match
@@ -30863,7 +30516,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       usize.t -> (ref (dyn [serde.de.Expected.Trait])) -> M _ :=
                     ltac:(M.get_method (fun ℐ =>
@@ -30936,29 +30589,29 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
     let return_ :=
       M.return_ (R := core.result.Result.t Value __A::type["Error"].t) in
     M.catch_return
-      (let* __field0 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field1 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
-      let* __field2 : M.Val (core.option.Option.t i64.t) :=
-        M.alloc core.option.Option.None in
-      let* __field3 : M.Val (core.option.Option.t String.t) :=
-        M.alloc core.option.Option.None in
+      (let* __field0 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field1 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
+      let* __field2 : M.Val (Option.t i64.t) :=
+        M.alloc Option.None in
+      let* __field3 : M.Val (Option.t String.t) :=
+        M.alloc Option.None in
       let* __field4 :
           M.Val
-            (core.option.Option.t
+            (Option.t
               (Vec.t
                 assistants_extra.openai.Choice.t
                 alloc.alloc.Global.t)) :=
-        M.alloc core.option.Option.None in
+        M.alloc Option.None in
       let* __field5 :
-          M.Val (core.option.Option.t assistants_extra.openai.Usage.t) :=
-        M.alloc core.option.Option.None in
+          M.Val (Option.t assistants_extra.openai.Usage.t) :=
+        M.alloc Option.None in
       let* _ : M.Val unit :=
         M.loop
           (let* α0 :
               (core.result.Result.t
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)
                   _)
                 ->
@@ -30967,7 +30620,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               core.ops.try_trait.Try.branch
                 (Self :=
                   core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _)
                 (Trait := ℐ))) in
@@ -30975,7 +30628,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               (mut_ref __A) ->
                 M
                   (core.result.Result.t
-                    (core.option.Option.t
+                    (Option.t
                       assistants_extra.openai._.deserialize.__Field.t)
                     _) :=
             ltac:(M.get_method (fun ℐ =>
@@ -30985,26 +30638,26 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                 (Trait := ℐ))) in
           let* α2 :
               core.result.Result.t
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t)
                 _ :=
             M.call (α1 (borrow_mut __map)) in
           let* α3 :
               core.ops.control_flow.ControlFlow.t
                 (core.result.Result.t core.convert.Infallible.t _)
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             M.call (α0 α2) in
           let* α4 :
               M.Val
                 (core.ops.control_flow.ControlFlow.t
                   (core.result.Result.t core.convert.Infallible.t _)
-                  (core.option.Option.t
+                  (Option.t
                     assistants_extra.openai._.deserialize.__Field.t)) :=
             M.alloc α3 in
           let* α5 :
               M.Val
-                (core.option.Option.t
+                (Option.t
                   assistants_extra.openai._.deserialize.__Field.t) :=
             match_operator
               α4
@@ -31042,7 +30695,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                     let* α3 : M.Val never.t := return_ α2 in
                     let* α4 := M.read α3 in
                     let* α5 :
-                        core.option.Option.t
+                        Option.t
                           assistants_extra.openai._.deserialize.__Field.t :=
                       never_to_any α4 in
                     M.alloc α5
@@ -31050,7 +30703,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t));
                 fun γ =>
                   (let* α0 := M.read γ in
@@ -31064,7 +30717,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                   end) :
                   M
                     (M.Val
-                      (core.option.Option.t
+                      (Option.t
                         assistants_extra.openai._.deserialize.__Field.t))
               ] in
           match_operator
@@ -31073,8 +30726,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __key := M.copy γ0_0 in
                   match_operator
                     __key
@@ -31088,7 +30741,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field0)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -31219,7 +30872,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field0 (core.option.Option.Some α6) in
+                            assign __field0 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -31233,7 +30886,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field1)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -31364,7 +31017,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field1 (core.option.Option.Some α6) in
+                            assign __field1 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -31378,7 +31031,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t i64.t)::["is_some"]
+                                ((Option.t i64.t)::["is_some"]
                                   (borrow __field2)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
                             let* α2 : bool.t := M.read (use α1) in
@@ -31500,7 +31153,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val i64.t)
                                 ] in
                             let* α6 : i64.t := M.read α5 in
-                            assign __field2 (core.option.Option.Some α6) in
+                            assign __field2 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -31514,7 +31167,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       String.t)::["is_some"]
                                   (borrow __field3)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -31645,7 +31298,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                     M (M.Val String.t)
                                 ] in
                             let* α6 : String.t := M.read α5 in
-                            assign __field3 (core.option.Option.Some α6) in
+                            assign __field3 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -31659,7 +31312,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       (Vec.t
                                         assistants_extra.openai.Choice.t
                                         alloc.alloc.Global.t))::["is_some"]
@@ -31831,7 +31484,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                   assistants_extra.openai.Choice.t
                                   alloc.alloc.Global.t :=
                               M.read α5 in
-                            assign __field4 (core.option.Option.Some α6) in
+                            assign __field4 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -31845,7 +31498,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                           let* _ : M.Val unit :=
                             let* α0 : bool.t :=
                               M.call
-                                ((core.option.Option.t
+                                ((Option.t
                                       assistants_extra.openai.Usage.t)::["is_some"]
                                   (borrow __field5)) in
                             let* α1 : M.Val bool.t := M.alloc α0 in
@@ -31982,7 +31635,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
                                 ] in
                             let* α6 : assistants_extra.openai.Usage.t :=
                               M.read α5 in
-                            assign __field5 (core.option.Option.Some α6) in
+                            assign __field5 (Option.Some α6) in
                           M.alloc tt
                         | _ => M.break_match
                         end) :
@@ -32123,8 +31776,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field0 := M.copy γ0_0 in
                   M.pure __field0
                 | _ => M.break_match
@@ -32133,7 +31786,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -32226,8 +31879,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field1 := M.copy γ0_0 in
                   M.pure __field1
                 | _ => M.break_match
@@ -32236,7 +31889,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -32329,8 +31982,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field2 := M.copy γ0_0 in
                   M.pure __field2
                 | _ => M.break_match
@@ -32339,7 +31992,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t i64.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -32432,8 +32085,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field3 := M.copy γ0_0 in
                   M.pure __field3
                 | _ => M.break_match
@@ -32442,7 +32095,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t String.t _) ->
                         M (core.ops.control_flow.ControlFlow.t _ _) :=
@@ -32543,8 +32196,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field4 := M.copy γ0_0 in
                   M.pure __field4
                 | _ => M.break_match
@@ -32557,7 +32210,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t
                           (Vec.t
@@ -32685,8 +32338,8 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.Some _ =>
-                  let γ0_0 := core.option.Option.Get_Some_0 γ in
+                | Option.Some _ =>
+                  let γ0_0 := Option.Get_Some_0 γ in
                   let* __field5 := M.copy γ0_0 in
                   M.pure __field5
                 | _ => M.break_match
@@ -32695,7 +32348,7 @@ Section Impl_serde_de_Visitor_for_assistants_extra_openai___deserialize___Visito
               fun γ =>
                 (let* α0 := M.read γ in
                 match α0 with
-                | core.option.Option.None =>
+                | Option.None =>
                   let* α0 :
                       (core.result.Result.t assistants_extra.openai.Usage.t _)
                         ->
@@ -33941,13 +33594,13 @@ pub async fn call_openai_api(
 Definition call_openai_api
     (prompt : String.t)
     (max_tokens_to_sample : i32.t)
-    (model : core.option.Option.t String.t)
-    (temperature : core.option.Option.t f32.t)
+    (model : Option.t String.t)
+    (temperature : Option.t f32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
+    (top_p : Option.t f32.t)
     : M OpaqueDef :=
   let* prompt := M.alloc prompt in
   let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -33966,18 +33619,18 @@ Definition call_openai_api
             let* prompt : M.Val String.t := M.copy prompt in
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
-            let* model : M.Val (core.option.Option.t String.t) :=
+            let* model : M.Val (Option.t String.t) :=
               M.copy model in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
             let* url : M.Val (ref str.t) :=
               M.copy (mk_str "https://api.openai.com/v1/chat/completions") in
             let* default_model : M.Val String.t :=
@@ -33990,11 +33643,11 @@ Definition call_openai_api
               let* α2 : String.t := M.call (α0 α1) in
               M.alloc α2 in
             let* model : M.Val String.t :=
-              let* α0 : core.option.Option.t String.t :=
+              let* α0 : Option.t String.t :=
                 M.read model in
               let* α1 : String.t :=
                 M.call
-                  ((core.option.Option.t
+                  ((Option.t
                         String.t)::["unwrap_or_else"]
                     α0
                     (fun (α0 : unit) =>
@@ -34043,13 +33696,13 @@ Definition call_openai_api
                       http.header.value.HeaderValue.t)::["new"] in
               M.alloc α0 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -34134,10 +33787,10 @@ Definition call_openai_api
                   ] in
               M.copy α4 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "Authorization") in
               let* α1 : http.header.value.HeaderValue.t := M.read auth_value in
-              let* α2 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α2 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -34147,22 +33800,22 @@ Definition call_openai_api
               M.alloc α2 in
             let* body :
                 M.Val
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t) :=
               let* α0 :
-                  std.collections.hash.map.HashMap.t
+                  HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t :=
                 M.call
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t)::["new"] in
               M.alloc α0 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "model") in
               let* α1 :
                   core.result.Result.t
@@ -34175,9 +33828,9 @@ Definition call_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -34185,7 +33838,7 @@ Definition call_openai_api
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "messages") in
               let* α1 : (ref str.t) -> M String.t :=
                 ltac:(M.get_method (fun ℐ =>
@@ -34240,9 +33893,9 @@ Definition call_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α10) in
-              let* α12 : core.option.Option.t serde_json.value.Value.t :=
+              let* α12 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -34250,7 +33903,7 @@ Definition call_openai_api
                     α0
                     α11) in
               M.alloc α12 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "max_tokens") in
               let* α1 :
                   core.result.Result.t
@@ -34264,9 +33917,9 @@ Definition call_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -34274,12 +33927,12 @@ Definition call_openai_api
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "temperature") in
-              let* α1 : core.option.Option.t f32.t := M.read temperature in
+              let* α1 : Option.t f32.t := M.read temperature in
               let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
               let* α3 : f32.t :=
-                M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
               let* α4 : M.Val f32.t := M.alloc α3 in
               let* α5 :
                   core.result.Result.t
@@ -34292,9 +33945,9 @@ Definition call_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α5) in
-              let* α7 : core.option.Option.t serde_json.value.Value.t :=
+              let* α7 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -34302,11 +33955,11 @@ Definition call_openai_api
                     α0
                     α6) in
               M.alloc α7 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "stream") in
-              let* α1 : core.option.Option.t serde_json.value.Value.t :=
+              let* α1 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -34321,12 +33974,12 @@ Definition call_openai_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* stop_sequences := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "stop") in
                         let* α1 :
                             core.result.Result.t
@@ -34342,9 +33995,9 @@ Definition call_openai_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -34365,12 +34018,12 @@ Definition call_openai_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_p := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_p") in
                         let* α1 :
                             core.result.Result.t
@@ -34384,9 +34037,9 @@ Definition call_openai_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -34939,12 +34592,12 @@ Definition call_open_source_openai_api
     (prompt : String.t)
     (max_tokens_to_sample : i32.t)
     (model : String.t)
-    (temperature : core.option.Option.t f32.t)
+    (temperature : Option.t f32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
+    (top_p : Option.t f32.t)
     (url : String.t)
     : M OpaqueDef :=
   let* prompt := M.alloc prompt in
@@ -34966,16 +34619,16 @@ Definition call_open_source_openai_api
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
             let* model : M.Val String.t := M.copy model in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
             let* url : M.Val String.t := M.copy url in
             let* headers :
                 M.Val
@@ -34988,13 +34641,13 @@ Definition call_open_source_openai_api
                       http.header.value.HeaderValue.t)::["new"] in
               M.alloc α0 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -35033,13 +34686,13 @@ Definition call_open_source_openai_api
                       M String.t)) in
               M.alloc α2 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -35124,10 +34777,10 @@ Definition call_open_source_openai_api
                   ] in
               M.copy α4 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "Authorization") in
               let* α1 : http.header.value.HeaderValue.t := M.read auth_value in
-              let* α2 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α2 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -35137,22 +34790,22 @@ Definition call_open_source_openai_api
               M.alloc α2 in
             let* body :
                 M.Val
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t) :=
               let* α0 :
-                  std.collections.hash.map.HashMap.t
+                  HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t :=
                 M.call
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t)::["new"] in
               M.alloc α0 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "model") in
               let* α1 :
                   core.result.Result.t
@@ -35165,9 +34818,9 @@ Definition call_open_source_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -35175,7 +34828,7 @@ Definition call_open_source_openai_api
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "messages") in
               let* α1 : (ref str.t) -> M String.t :=
                 ltac:(M.get_method (fun ℐ =>
@@ -35230,9 +34883,9 @@ Definition call_open_source_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α10) in
-              let* α12 : core.option.Option.t serde_json.value.Value.t :=
+              let* α12 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -35240,7 +34893,7 @@ Definition call_open_source_openai_api
                     α0
                     α11) in
               M.alloc α12 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "max_tokens") in
               let* α1 :
                   core.result.Result.t
@@ -35254,9 +34907,9 @@ Definition call_open_source_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -35264,12 +34917,12 @@ Definition call_open_source_openai_api
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "temperature") in
-              let* α1 : core.option.Option.t f32.t := M.read temperature in
+              let* α1 : Option.t f32.t := M.read temperature in
               let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
               let* α3 : f32.t :=
-                M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
               let* α4 : M.Val f32.t := M.alloc α3 in
               let* α5 :
                   core.result.Result.t
@@ -35282,9 +34935,9 @@ Definition call_open_source_openai_api
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α5) in
-              let* α7 : core.option.Option.t serde_json.value.Value.t :=
+              let* α7 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -35292,11 +34945,11 @@ Definition call_open_source_openai_api
                     α0
                     α6) in
               M.alloc α7 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "stream") in
-              let* α1 : core.option.Option.t serde_json.value.Value.t :=
+              let* α1 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -35311,12 +34964,12 @@ Definition call_open_source_openai_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* stop_sequences := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "stop") in
                         let* α1 :
                             core.result.Result.t
@@ -35332,9 +34985,9 @@ Definition call_open_source_openai_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -35355,12 +35008,12 @@ Definition call_open_source_openai_api
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_p := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_p") in
                         let* α1 :
                             core.result.Result.t
@@ -35374,9 +35027,9 @@ Definition call_open_source_openai_api
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -35835,9 +35488,9 @@ Definition call_open_source_openai_api
                                 α0;
                               assistants_extra.openai.ApiErrorDetail.type := α3;
                               assistants_extra.openai.ApiErrorDetail.param :=
-                                core.option.Option.None;
+                                Option.None;
                               assistants_extra.openai.ApiErrorDetail.code :=
-                                core.option.Option.None;
+                                Option.None;
                             |};
                         |})) in
                 let* α5 := M.read α4 in
@@ -35971,13 +35624,13 @@ Definition call_openai_api_with_messages
       :
       Vec.t assistants_extra.openai.Message.t Vec.Default.A)
     (max_tokens_to_sample : i32.t)
-    (model : core.option.Option.t String.t)
-    (temperature : core.option.Option.t f32.t)
+    (model : Option.t String.t)
+    (temperature : Option.t f32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
+    (top_p : Option.t f32.t)
     : M OpaqueDef :=
   let* messages := M.alloc messages in
   let* max_tokens_to_sample := M.alloc max_tokens_to_sample in
@@ -36001,18 +35654,18 @@ Definition call_openai_api_with_messages
               M.copy messages in
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
-            let* model : M.Val (core.option.Option.t String.t) :=
+            let* model : M.Val (Option.t String.t) :=
               M.copy model in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
             let* url : M.Val (ref str.t) :=
               M.copy (mk_str "https://api.openai.com/v1/chat/completions") in
             let* default_model : M.Val String.t :=
@@ -36025,11 +35678,11 @@ Definition call_openai_api_with_messages
               let* α2 : String.t := M.call (α0 α1) in
               M.alloc α2 in
             let* model : M.Val String.t :=
-              let* α0 : core.option.Option.t String.t :=
+              let* α0 : Option.t String.t :=
                 M.read model in
               let* α1 : String.t :=
                 M.call
-                  ((core.option.Option.t
+                  ((Option.t
                         String.t)::["unwrap_or_else"]
                     α0
                     (fun (α0 : unit) =>
@@ -36078,13 +35731,13 @@ Definition call_openai_api_with_messages
                       http.header.value.HeaderValue.t)::["new"] in
               M.alloc α0 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -36169,10 +35822,10 @@ Definition call_openai_api_with_messages
                   ] in
               M.copy α4 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "Authorization") in
               let* α1 : http.header.value.HeaderValue.t := M.read auth_value in
-              let* α2 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α2 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -36182,22 +35835,22 @@ Definition call_openai_api_with_messages
               M.alloc α2 in
             let* body :
                 M.Val
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t) :=
               let* α0 :
-                  std.collections.hash.map.HashMap.t
+                  HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t :=
                 M.call
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t)::["new"] in
               M.alloc α0 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "model") in
               let* α1 :
                   core.result.Result.t
@@ -36210,9 +35863,9 @@ Definition call_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -36220,7 +35873,7 @@ Definition call_openai_api_with_messages
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "messages") in
               let* α1 :
                   core.result.Result.t
@@ -36233,9 +35886,9 @@ Definition call_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -36243,7 +35896,7 @@ Definition call_openai_api_with_messages
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "max_tokens") in
               let* α1 :
                   core.result.Result.t
@@ -36257,9 +35910,9 @@ Definition call_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -36267,12 +35920,12 @@ Definition call_openai_api_with_messages
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "temperature") in
-              let* α1 : core.option.Option.t f32.t := M.read temperature in
+              let* α1 : Option.t f32.t := M.read temperature in
               let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
               let* α3 : f32.t :=
-                M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
               let* α4 : M.Val f32.t := M.alloc α3 in
               let* α5 :
                   core.result.Result.t
@@ -36285,9 +35938,9 @@ Definition call_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α5) in
-              let* α7 : core.option.Option.t serde_json.value.Value.t :=
+              let* α7 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -36295,11 +35948,11 @@ Definition call_openai_api_with_messages
                     α0
                     α6) in
               M.alloc α7 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "stream") in
-              let* α1 : core.option.Option.t serde_json.value.Value.t :=
+              let* α1 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -36314,12 +35967,12 @@ Definition call_openai_api_with_messages
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* stop_sequences := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "stop") in
                         let* α1 :
                             core.result.Result.t
@@ -36335,9 +35988,9 @@ Definition call_openai_api_with_messages
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -36358,12 +36011,12 @@ Definition call_openai_api_with_messages
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_p := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_p") in
                         let* α1 :
                             core.result.Result.t
@@ -36377,9 +36030,9 @@ Definition call_openai_api_with_messages
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -36924,12 +36577,12 @@ Definition call_open_source_openai_api_with_messages
       Vec.t assistants_extra.openai.Message.t Vec.Default.A)
     (max_tokens_to_sample : i32.t)
     (model : String.t)
-    (temperature : core.option.Option.t f32.t)
+    (temperature : Option.t f32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
+    (top_p : Option.t f32.t)
     (url : String.t)
     : M OpaqueDef :=
   let* messages := M.alloc messages in
@@ -36956,16 +36609,16 @@ Definition call_open_source_openai_api_with_messages
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
             let* model : M.Val String.t := M.copy model in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
             let* url : M.Val String.t := M.copy url in
             let* headers :
                 M.Val
@@ -36978,13 +36631,13 @@ Definition call_open_source_openai_api_with_messages
                       http.header.value.HeaderValue.t)::["new"] in
               M.alloc α0 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -37023,13 +36676,13 @@ Definition call_open_source_openai_api_with_messages
                       M String.t)) in
               M.alloc α2 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : http.header.name.HeaderName.t :=
                 M.read http.header.name.CONTENT_TYPE in
               let* α1 : ref str.t := M.read (mk_str "application/json") in
               let* α2 : http.header.value.HeaderValue.t :=
                 M.call (http.header.value.HeaderValue.t::["from_static"] α1) in
-              let* α3 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α3 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -37114,10 +36767,10 @@ Definition call_open_source_openai_api_with_messages
                   ] in
               M.copy α4 in
             let* _ :
-                M.Val (core.option.Option.t http.header.value.HeaderValue.t) :=
+                M.Val (Option.t http.header.value.HeaderValue.t) :=
               let* α0 : ref str.t := M.read (mk_str "Authorization") in
               let* α1 : http.header.value.HeaderValue.t := M.read auth_value in
-              let* α2 : core.option.Option.t http.header.value.HeaderValue.t :=
+              let* α2 : Option.t http.header.value.HeaderValue.t :=
                 M.call
                   ((http.header.map.HeaderMap.t
                         http.header.value.HeaderValue.t)::["insert"]
@@ -37127,22 +36780,22 @@ Definition call_open_source_openai_api_with_messages
               M.alloc α2 in
             let* body :
                 M.Val
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t) :=
               let* α0 :
-                  std.collections.hash.map.HashMap.t
+                  HashMap.t
                     (ref str.t)
                     serde_json.value.Value.t
                     std.hash.random.RandomState.t :=
                 M.call
-                  (std.collections.hash.map.HashMap.t
+                  (HashMap.t
                       (ref str.t)
                       serde_json.value.Value.t
                       std.hash.random.RandomState.t)::["new"] in
               M.alloc α0 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "model") in
               let* α1 :
                   core.result.Result.t
@@ -37155,9 +36808,9 @@ Definition call_open_source_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -37165,7 +36818,7 @@ Definition call_open_source_openai_api_with_messages
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "messages") in
               let* α1 :
                   core.result.Result.t
@@ -37178,9 +36831,9 @@ Definition call_open_source_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -37188,7 +36841,7 @@ Definition call_open_source_openai_api_with_messages
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "max_tokens") in
               let* α1 :
                   core.result.Result.t
@@ -37202,9 +36855,9 @@ Definition call_open_source_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α1) in
-              let* α3 : core.option.Option.t serde_json.value.Value.t :=
+              let* α3 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -37212,12 +36865,12 @@ Definition call_open_source_openai_api_with_messages
                     α0
                     α2) in
               M.alloc α3 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "temperature") in
-              let* α1 : core.option.Option.t f32.t := M.read temperature in
+              let* α1 : Option.t f32.t := M.read temperature in
               let* α2 : f32.t := M.read (UnsupportedLiteral : M.Val f32.t) in
               let* α3 : f32.t :=
-                M.call ((core.option.Option.t f32.t)::["unwrap_or"] α1 α2) in
+                M.call ((Option.t f32.t)::["unwrap_or"] α1 α2) in
               let* α4 : M.Val f32.t := M.alloc α3 in
               let* α5 :
                   core.result.Result.t
@@ -37230,9 +36883,9 @@ Definition call_open_source_openai_api_with_messages
                         serde_json.value.Value.t
                         serde_json.error.Error.t)::["unwrap"]
                     α5) in
-              let* α7 : core.option.Option.t serde_json.value.Value.t :=
+              let* α7 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -37240,11 +36893,11 @@ Definition call_open_source_openai_api_with_messages
                     α0
                     α6) in
               M.alloc α7 in
-            let* _ : M.Val (core.option.Option.t serde_json.value.Value.t) :=
+            let* _ : M.Val (Option.t serde_json.value.Value.t) :=
               let* α0 : ref str.t := M.read (mk_str "stream") in
-              let* α1 : core.option.Option.t serde_json.value.Value.t :=
+              let* α1 : Option.t serde_json.value.Value.t :=
                 M.call
-                  ((std.collections.hash.map.HashMap.t
+                  ((HashMap.t
                         (ref str.t)
                         serde_json.value.Value.t
                         std.hash.random.RandomState.t)::["insert"]
@@ -37259,12 +36912,12 @@ Definition call_open_source_openai_api_with_messages
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* stop_sequences := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "stop") in
                         let* α1 :
                             core.result.Result.t
@@ -37280,9 +36933,9 @@ Definition call_open_source_openai_api_with_messages
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -37303,12 +36956,12 @@ Definition call_open_source_openai_api_with_messages
                   fun γ =>
                     (let* α0 := M.read γ in
                     match α0 with
-                    | core.option.Option.Some _ =>
-                      let γ0_0 := core.option.Option.Get_Some_0 γ in
+                    | Option.Some _ =>
+                      let γ0_0 := Option.Get_Some_0 γ in
                       let* top_p := M.copy γ0_0 in
                       let* _ :
                           M.Val
-                            (core.option.Option.t serde_json.value.Value.t) :=
+                            (Option.t serde_json.value.Value.t) :=
                         let* α0 : ref str.t := M.read (mk_str "top_p") in
                         let* α1 :
                             core.result.Result.t
@@ -37322,9 +36975,9 @@ Definition call_open_source_openai_api_with_messages
                                   serde_json.error.Error.t)::["unwrap"]
                               α1) in
                         let* α3 :
-                            core.option.Option.t serde_json.value.Value.t :=
+                            Option.t serde_json.value.Value.t :=
                           M.call
-                            ((std.collections.hash.map.HashMap.t
+                            ((HashMap.t
                                   (ref str.t)
                                   serde_json.value.Value.t
                                   std.hash.random.RandomState.t)::["insert"]
@@ -37783,9 +37436,9 @@ Definition call_open_source_openai_api_with_messages
                                 α0;
                               assistants_extra.openai.ApiErrorDetail.type := α3;
                               assistants_extra.openai.ApiErrorDetail.param :=
-                                core.option.Option.None;
+                                Option.None;
                               assistants_extra.openai.ApiErrorDetail.code :=
-                                core.option.Option.None;
+                                Option.None;
                             |};
                         |})) in
                 let* α5 := M.read α4 in
@@ -37982,25 +37635,25 @@ Module llm.
   *)
   Definition llm
       (model_name : ref str.t)
-      (model_url : core.option.Option.t String.t)
+      (model_url : Option.t String.t)
       (system_prompt : ref str.t)
       (user_prompt : ref str.t)
-      (temperature : core.option.Option.t f32.t)
+      (temperature : Option.t f32.t)
       (max_tokens_to_sample : i32.t)
       (stop_sequences
         :
-        core.option.Option.t
+        Option.t
           (Vec.t String.t Vec.Default.A))
-      (top_p : core.option.Option.t f32.t)
-      (top_k : core.option.Option.t i32.t)
+      (top_p : Option.t f32.t)
+      (top_k : Option.t i32.t)
       (metadata
         :
-        core.option.Option.t
-          (std.collections.hash.map.HashMap.t
+        Option.t
+          (HashMap.t
             String.t
             String.t
-            std.collections.hash.map.HashMap.Default.S))
-      (context_size : core.option.Option.t i32.t)
+            HashMap.Default.S))
+      (context_size : Option.t i32.t)
       : M OpaqueDef :=
     let* model_name := M.alloc model_name in
     let* model_url := M.alloc model_url in
@@ -38023,32 +37676,32 @@ Module llm.
               (let* _task_context := M.copy γ in
               let* model_name : M.Val (ref str.t) := M.copy model_name in
               let* model_url :
-                  M.Val (core.option.Option.t String.t) :=
+                  M.Val (Option.t String.t) :=
                 M.copy model_url in
               let* system_prompt : M.Val (ref str.t) := M.copy system_prompt in
               let* user_prompt : M.Val (ref str.t) := M.copy user_prompt in
-              let* temperature : M.Val (core.option.Option.t f32.t) :=
+              let* temperature : M.Val (Option.t f32.t) :=
                 M.copy temperature in
               let* max_tokens_to_sample : M.Val i32.t :=
                 M.copy max_tokens_to_sample in
               let* stop_sequences :
                   M.Val
-                    (core.option.Option.t
+                    (Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t)) :=
                 M.copy stop_sequences in
-              let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
-              let* top_k : M.Val (core.option.Option.t i32.t) := M.copy top_k in
+              let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
+              let* top_k : M.Val (Option.t i32.t) := M.copy top_k in
               let* metadata :
                   M.Val
-                    (core.option.Option.t
-                      (std.collections.hash.map.HashMap.t
+                    (Option.t
+                      (HashMap.t
                         String.t
                         String.t
                         std.hash.random.RandomState.t)) :=
                 M.copy metadata in
-              let* context_size : M.Val (core.option.Option.t i32.t) :=
+              let* context_size : M.Val (Option.t i32.t) :=
                 M.copy context_size in
               let* messages :
                   M.Val
@@ -38222,7 +37875,7 @@ Module llm.
                               α5
                               (borrow α9)
                               ((Integer.of_Z 40) : u32.t)
-                              core.option.Option.None) in
+                              Option.None) in
                         M.alloc α10 in
                       M.alloc tt
                     else
@@ -38266,11 +37919,11 @@ Module llm.
                               α1) in
                         M.alloc α2 in
                       let* _ : M.Val unit :=
-                        let* α0 : core.option.Option.t i32.t :=
+                        let* α0 : Option.t i32.t :=
                           M.read context_size in
                         let* α1 : i32.t :=
                           M.call
-                            ((core.option.Option.t i32.t)::["unwrap_or"]
+                            ((Option.t i32.t)::["unwrap_or"]
                               α0
                               ((Integer.of_Z 4096) : i32.t)) in
                         let* α2 : usize.t :=
@@ -38298,18 +37951,18 @@ Module llm.
                         (Trait := ℐ))) in
                   let* α4 : ref str.t := M.read model_name in
                   let* α5 : String.t := M.call (α3 α4) in
-                  let* α6 : core.option.Option.t f32.t := M.read temperature in
+                  let* α6 : Option.t f32.t := M.read temperature in
                   let* α7 :
-                      core.option.Option.t
+                      Option.t
                         (Vec.t
                           String.t
                           alloc.alloc.Global.t) :=
                     M.read stop_sequences in
-                  let* α8 : core.option.Option.t f32.t := M.read top_p in
-                  let* α9 : core.option.Option.t i32.t := M.read top_k in
+                  let* α8 : Option.t f32.t := M.read top_p in
+                  let* α9 : Option.t i32.t := M.read top_k in
                   let* α10 :
-                      core.option.Option.t
-                        (std.collections.hash.map.HashMap.t
+                      Option.t
+                        (HashMap.t
                           String.t
                           String.t
                           std.hash.random.RandomState.t) :=
@@ -38319,7 +37972,7 @@ Module llm.
                       (assistants_extra.anthropic.call_anthropic_api
                         α1
                         α2
-                        (core.option.Option.Some α5)
+                        (Option.Some α5)
                         α6
                         α7
                         α8
@@ -38536,7 +38189,7 @@ Module llm.
                                             α5
                                             (borrow α9)
                                             ((Integer.of_Z 61) : u32.t)
-                                            core.option.Option.None) in
+                                            Option.None) in
                                       M.alloc α10 in
                                     M.alloc tt
                                   else
@@ -38648,7 +38301,7 @@ Module llm.
                                 α5
                                 (borrow α9)
                                 ((Integer.of_Z 65) : u32.t)
-                                core.option.Option.None) in
+                                Option.None) in
                           M.alloc α10 in
                         M.alloc tt
                       else
@@ -38705,11 +38358,11 @@ Module llm.
                                 α4) in
                           M.alloc α5 in
                         let* _ : M.Val unit :=
-                          let* α0 : core.option.Option.t i32.t :=
+                          let* α0 : Option.t i32.t :=
                             M.read context_size in
                           let* α1 : i32.t :=
                             M.call
-                              ((core.option.Option.t i32.t)::["unwrap_or"]
+                              ((Option.t i32.t)::["unwrap_or"]
                                 α0
                                 ((Integer.of_Z 4096) : i32.t)) in
                           let* α2 : usize.t :=
@@ -38742,21 +38395,21 @@ Module llm.
                           (Trait := ℐ))) in
                     let* α4 : ref str.t := M.read model_name in
                     let* α5 : String.t := M.call (α3 α4) in
-                    let* α6 : core.option.Option.t f32.t :=
+                    let* α6 : Option.t f32.t :=
                       M.read temperature in
                     let* α7 :
-                        core.option.Option.t
+                        Option.t
                           (Vec.t
                             String.t
                             alloc.alloc.Global.t) :=
                       M.read stop_sequences in
-                    let* α8 : core.option.Option.t f32.t := M.read top_p in
+                    let* α8 : Option.t f32.t := M.read top_p in
                     let* α9 : _ :=
                       M.call
                         (assistants_extra.openai.call_openai_api_with_messages
                           α1
                           α2
-                          (core.option.Option.Some α5)
+                          (Option.Some α5)
                           α6
                           α7
                           α8) in
@@ -39008,7 +38661,7 @@ Module llm.
                                               α5
                                               (borrow α9)
                                               ((Integer.of_Z 82) : u32.t)
-                                              core.option.Option.None) in
+                                              Option.None) in
                                         M.alloc α10 in
                                       M.alloc tt
                                     else
@@ -39057,7 +38710,7 @@ Module llm.
                       let* model_name : M.Val (ref str.t) :=
                         let* α0 :
                             (core.str.iter.Split.t char.t) ->
-                              M (core.option.Option.t _) :=
+                              M (Option.t _) :=
                           ltac:(M.get_method (fun ℐ =>
                             core.iter.traits.iterator.Iterator.last
                               (Self := core.str.iter.Split.t char.t)
@@ -39065,20 +38718,20 @@ Module llm.
                         let* α1 : ref str.t := M.read model_name in
                         let* α2 : core.str.iter.Split.t char.t :=
                           M.call (str.t::["split"] α1 "/"%char) in
-                        let* α3 : core.option.Option.t (ref str.t) :=
+                        let* α3 : Option.t (ref str.t) :=
                           M.call (α0 α2) in
                         let* α4 : ref str.t :=
                           M.call
-                            ((core.option.Option.t
+                            ((Option.t
                                   (ref str.t))::["unwrap_or_default"]
                               α3) in
                         M.alloc α4 in
                       let* url : M.Val String.t :=
-                        let* α0 : core.option.Option.t String.t :=
+                        let* α0 : Option.t String.t :=
                           M.read model_url in
                         let* α1 : String.t :=
                           M.call
-                            ((core.option.Option.t
+                            ((Option.t
                                   String.t)::["unwrap_or_else"]
                               α0
                               (fun (α0 : unit) =>
@@ -39195,7 +38848,7 @@ Module llm.
                                   α5
                                   (borrow α9)
                                   ((Integer.of_Z 92) : u32.t)
-                                  core.option.Option.None) in
+                                  Option.None) in
                             M.alloc α10 in
                           M.alloc tt
                         else
@@ -39256,11 +38909,11 @@ Module llm.
                                   α4) in
                             M.alloc α5 in
                           let* _ : M.Val unit :=
-                            let* α0 : core.option.Option.t i32.t :=
+                            let* α0 : Option.t i32.t :=
                               M.read context_size in
                             let* α1 : i32.t :=
                               M.call
-                                ((core.option.Option.t i32.t)::["unwrap_or"]
+                                ((Option.t i32.t)::["unwrap_or"]
                                   α0
                                   ((Integer.of_Z 4096) : i32.t)) in
                             let* α2 : usize.t :=
@@ -39316,15 +38969,15 @@ Module llm.
                             (Trait := ℐ))) in
                       let* α4 : ref str.t := M.read model_name in
                       let* α5 : String.t := M.call (α3 α4) in
-                      let* α6 : core.option.Option.t f32.t :=
+                      let* α6 : Option.t f32.t :=
                         M.read temperature in
                       let* α7 :
-                          core.option.Option.t
+                          Option.t
                             (Vec.t
                               String.t
                               alloc.alloc.Global.t) :=
                         M.read stop_sequences in
-                      let* α8 : core.option.Option.t f32.t := M.read top_p in
+                      let* α8 : Option.t f32.t := M.read top_p in
                       let* α9 : String.t := M.read url in
                       let* α10 : _ :=
                         M.call
@@ -39590,7 +39243,7 @@ Module llm.
                                                 α5
                                                 (borrow α9)
                                                 ((Integer.of_Z 114) : u32.t)
-                                                core.option.Option.None) in
+                                                Option.None) in
                                           M.alloc α10 in
                                         M.alloc tt
                                       else
@@ -39781,25 +39434,25 @@ pub async fn llm(
 *)
 Definition llm
     (model_name : ref str.t)
-    (model_url : core.option.Option.t String.t)
+    (model_url : Option.t String.t)
     (system_prompt : ref str.t)
     (user_prompt : ref str.t)
-    (temperature : core.option.Option.t f32.t)
+    (temperature : Option.t f32.t)
     (max_tokens_to_sample : i32.t)
     (stop_sequences
       :
-      core.option.Option.t
+      Option.t
         (Vec.t String.t Vec.Default.A))
-    (top_p : core.option.Option.t f32.t)
-    (top_k : core.option.Option.t i32.t)
+    (top_p : Option.t f32.t)
+    (top_k : Option.t i32.t)
     (metadata
       :
-      core.option.Option.t
-        (std.collections.hash.map.HashMap.t
+      Option.t
+        (HashMap.t
           String.t
           String.t
-          std.collections.hash.map.HashMap.Default.S))
-    (context_size : core.option.Option.t i32.t)
+          HashMap.Default.S))
+    (context_size : Option.t i32.t)
     : M OpaqueDef :=
   let* model_name := M.alloc model_name in
   let* model_url := M.alloc model_url in
@@ -39822,32 +39475,32 @@ Definition llm
             (let* _task_context := M.copy γ in
             let* model_name : M.Val (ref str.t) := M.copy model_name in
             let* model_url :
-                M.Val (core.option.Option.t String.t) :=
+                M.Val (Option.t String.t) :=
               M.copy model_url in
             let* system_prompt : M.Val (ref str.t) := M.copy system_prompt in
             let* user_prompt : M.Val (ref str.t) := M.copy user_prompt in
-            let* temperature : M.Val (core.option.Option.t f32.t) :=
+            let* temperature : M.Val (Option.t f32.t) :=
               M.copy temperature in
             let* max_tokens_to_sample : M.Val i32.t :=
               M.copy max_tokens_to_sample in
             let* stop_sequences :
                 M.Val
-                  (core.option.Option.t
+                  (Option.t
                     (Vec.t
                       String.t
                       alloc.alloc.Global.t)) :=
               M.copy stop_sequences in
-            let* top_p : M.Val (core.option.Option.t f32.t) := M.copy top_p in
-            let* top_k : M.Val (core.option.Option.t i32.t) := M.copy top_k in
+            let* top_p : M.Val (Option.t f32.t) := M.copy top_p in
+            let* top_k : M.Val (Option.t i32.t) := M.copy top_k in
             let* metadata :
                 M.Val
-                  (core.option.Option.t
-                    (std.collections.hash.map.HashMap.t
+                  (Option.t
+                    (HashMap.t
                       String.t
                       String.t
                       std.hash.random.RandomState.t)) :=
               M.copy metadata in
-            let* context_size : M.Val (core.option.Option.t i32.t) :=
+            let* context_size : M.Val (Option.t i32.t) :=
               M.copy context_size in
             let* messages :
                 M.Val
@@ -40021,7 +39674,7 @@ Definition llm
                             α5
                             (borrow α9)
                             ((Integer.of_Z 40) : u32.t)
-                            core.option.Option.None) in
+                            Option.None) in
                       M.alloc α10 in
                     M.alloc tt
                   else
@@ -40062,11 +39715,11 @@ Definition llm
                             α1) in
                       M.alloc α2 in
                     let* _ : M.Val unit :=
-                      let* α0 : core.option.Option.t i32.t :=
+                      let* α0 : Option.t i32.t :=
                         M.read context_size in
                       let* α1 : i32.t :=
                         M.call
-                          ((core.option.Option.t i32.t)::["unwrap_or"]
+                          ((Option.t i32.t)::["unwrap_or"]
                             α0
                             ((Integer.of_Z 4096) : i32.t)) in
                       let* α2 : usize.t :=
@@ -40094,18 +39747,18 @@ Definition llm
                       (Trait := ℐ))) in
                 let* α4 : ref str.t := M.read model_name in
                 let* α5 : String.t := M.call (α3 α4) in
-                let* α6 : core.option.Option.t f32.t := M.read temperature in
+                let* α6 : Option.t f32.t := M.read temperature in
                 let* α7 :
-                    core.option.Option.t
+                    Option.t
                       (Vec.t
                         String.t
                         alloc.alloc.Global.t) :=
                   M.read stop_sequences in
-                let* α8 : core.option.Option.t f32.t := M.read top_p in
-                let* α9 : core.option.Option.t i32.t := M.read top_k in
+                let* α8 : Option.t f32.t := M.read top_p in
+                let* α9 : Option.t i32.t := M.read top_k in
                 let* α10 :
-                    core.option.Option.t
-                      (std.collections.hash.map.HashMap.t
+                    Option.t
+                      (HashMap.t
                         String.t
                         String.t
                         std.hash.random.RandomState.t) :=
@@ -40115,7 +39768,7 @@ Definition llm
                     (assistants_extra.anthropic.call_anthropic_api
                       α1
                       α2
-                      (core.option.Option.Some α5)
+                      (Option.Some α5)
                       α6
                       α7
                       α8
@@ -40327,7 +39980,7 @@ Definition llm
                                           α5
                                           (borrow α9)
                                           ((Integer.of_Z 61) : u32.t)
-                                          core.option.Option.None) in
+                                          Option.None) in
                                     M.alloc α10 in
                                   M.alloc tt
                                 else
@@ -40433,7 +40086,7 @@ Definition llm
                               α5
                               (borrow α9)
                               ((Integer.of_Z 65) : u32.t)
-                              core.option.Option.None) in
+                              Option.None) in
                         M.alloc α10 in
                       M.alloc tt
                     else
@@ -40488,11 +40141,11 @@ Definition llm
                               α4) in
                         M.alloc α5 in
                       let* _ : M.Val unit :=
-                        let* α0 : core.option.Option.t i32.t :=
+                        let* α0 : Option.t i32.t :=
                           M.read context_size in
                         let* α1 : i32.t :=
                           M.call
-                            ((core.option.Option.t i32.t)::["unwrap_or"]
+                            ((Option.t i32.t)::["unwrap_or"]
                               α0
                               ((Integer.of_Z 4096) : i32.t)) in
                         let* α2 : usize.t :=
@@ -40524,20 +40177,20 @@ Definition llm
                         (Trait := ℐ))) in
                   let* α4 : ref str.t := M.read model_name in
                   let* α5 : String.t := M.call (α3 α4) in
-                  let* α6 : core.option.Option.t f32.t := M.read temperature in
+                  let* α6 : Option.t f32.t := M.read temperature in
                   let* α7 :
-                      core.option.Option.t
+                      Option.t
                         (Vec.t
                           String.t
                           alloc.alloc.Global.t) :=
                     M.read stop_sequences in
-                  let* α8 : core.option.Option.t f32.t := M.read top_p in
+                  let* α8 : Option.t f32.t := M.read top_p in
                   let* α9 : _ :=
                     M.call
                       (assistants_extra.openai.call_openai_api_with_messages
                         α1
                         α2
-                        (core.option.Option.Some α5)
+                        (Option.Some α5)
                         α6
                         α7
                         α8) in
@@ -40786,7 +40439,7 @@ Definition llm
                                             α5
                                             (borrow α9)
                                             ((Integer.of_Z 82) : u32.t)
-                                            core.option.Option.None) in
+                                            Option.None) in
                                       M.alloc α10 in
                                     M.alloc tt
                                   else
@@ -40835,7 +40488,7 @@ Definition llm
                     let* model_name : M.Val (ref str.t) :=
                       let* α0 :
                           (core.str.iter.Split.t char.t) ->
-                            M (core.option.Option.t _) :=
+                            M (Option.t _) :=
                         ltac:(M.get_method (fun ℐ =>
                           core.iter.traits.iterator.Iterator.last
                             (Self := core.str.iter.Split.t char.t)
@@ -40843,20 +40496,20 @@ Definition llm
                       let* α1 : ref str.t := M.read model_name in
                       let* α2 : core.str.iter.Split.t char.t :=
                         M.call (str.t::["split"] α1 "/"%char) in
-                      let* α3 : core.option.Option.t (ref str.t) :=
+                      let* α3 : Option.t (ref str.t) :=
                         M.call (α0 α2) in
                       let* α4 : ref str.t :=
                         M.call
-                          ((core.option.Option.t
+                          ((Option.t
                                 (ref str.t))::["unwrap_or_default"]
                             α3) in
                       M.alloc α4 in
                     let* url : M.Val String.t :=
-                      let* α0 : core.option.Option.t String.t :=
+                      let* α0 : Option.t String.t :=
                         M.read model_url in
                       let* α1 : String.t :=
                         M.call
-                          ((core.option.Option.t
+                          ((Option.t
                                 String.t)::["unwrap_or_else"]
                             α0
                             (fun (α0 : unit) =>
@@ -40971,7 +40624,7 @@ Definition llm
                                 α5
                                 (borrow α9)
                                 ((Integer.of_Z 92) : u32.t)
-                                core.option.Option.None) in
+                                Option.None) in
                           M.alloc α10 in
                         M.alloc tt
                       else
@@ -41028,11 +40681,11 @@ Definition llm
                                 α4) in
                           M.alloc α5 in
                         let* _ : M.Val unit :=
-                          let* α0 : core.option.Option.t i32.t :=
+                          let* α0 : Option.t i32.t :=
                             M.read context_size in
                           let* α1 : i32.t :=
                             M.call
-                              ((core.option.Option.t i32.t)::["unwrap_or"]
+                              ((Option.t i32.t)::["unwrap_or"]
                                 α0
                                 ((Integer.of_Z 4096) : i32.t)) in
                           let* α2 : usize.t :=
@@ -41087,15 +40740,15 @@ Definition llm
                           (Trait := ℐ))) in
                     let* α4 : ref str.t := M.read model_name in
                     let* α5 : String.t := M.call (α3 α4) in
-                    let* α6 : core.option.Option.t f32.t :=
+                    let* α6 : Option.t f32.t :=
                       M.read temperature in
                     let* α7 :
-                        core.option.Option.t
+                        Option.t
                           (Vec.t
                             String.t
                             alloc.alloc.Global.t) :=
                       M.read stop_sequences in
-                    let* α8 : core.option.Option.t f32.t := M.read top_p in
+                    let* α8 : Option.t f32.t := M.read top_p in
                     let* α9 : String.t := M.read url in
                     let* α10 : _ :=
                       M.call
@@ -41355,7 +41008,7 @@ Definition llm
                                               α5
                                               (borrow α9)
                                               ((Integer.of_Z 114) : u32.t)
-                                              core.option.Option.None) in
+                                              Option.None) in
                                         M.alloc α10 in
                                       M.alloc tt
                                     else
