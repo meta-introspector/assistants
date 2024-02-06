@@ -42,17 +42,34 @@ Definition Forms := total2 (
                       ))))))).
 
 
-Definition Dungeon : UU := total2 (fun entrance : nat => total2
-                                                           (fun exits : R => unit)
+Definition Dungeon : UU := total2 (
+                               fun entrance : nat => total2
+                                                       (fun exits : R => unit)
                              ).
-                                        
+
+(*
+room => Map => space in higher dimension = UU = type
+(paths a b ) equivalent.
+(path json-rep python-rep ) is saying these two types are equivalent.
+total2 - connects two different types.
+dirprod_paths = path down the tunnel directed corridor.
+
+  path and rooms
+  connect two rooms via path (
+assoc
+
+proposal : hlevels = levels of dungeon
+hlevels = levels of types, rooms are types.
+
+ *)        
 Definition TowerDefenseGame : UU := total2 (
-fun layers_deep : nat => total2
-(fun temp : R => total2
-(fun forms : Forms => total2             
-(fun pictures: nat => total2                     (fun traces: nat => total2
-(fun styles: nat => total2
-(fun output : Dungeon => unit))))))).
+                                        fun layers_deep : nat => total2
+                                                                   (fun temp : R => total2
+                                                                                      (fun forms : Forms => total2             
+                                                                                                              (fun pictures: nat => total2                     (fun traces: nat => total2
+                                                                                                                                                                                     (fun styles: nat => total2
+                                                                                                                                                                                                           (fun output : Dungeon => unit))))))).
+
 Definition Game : UU := total2 (
                             fun play : nat => unit
                           ).
@@ -108,3 +125,33 @@ Definition RequestLLM : UU := total2 (
 
 
 (* WriteMeATowerDefenseGame -> jsonserde *)
+
+(* in coq
+Define two sets of natural numbers from 1 to 10 *)
+Definition t2 := nat.
+Inductive foo1: Type :=
+| nope
+| yup (n:UU) (l:foo1).
+Definition A := (yup t2 nope ).
+Definition B := (yup  t2 A ).
+
+
+(* Define a function that takes two sets A and B and returns a set of pairs  *)
+
+(* Definition pair_sets (X Y : Set) : Set := *)
+(*   { p : X * Y | fst p ∈ X /\ snd p ∈ Y }. *)
+
+(* Define a function that prints a pair of natural numbers *)
+(* Definition print_pair (p : nat * nat) : string := *)
+(*   "(" ++ string_of_nat (fst p) ++ ", " ++ string_of_nat (snd p) ++ ")". *)
+
+(* (* Define a function that prints a set of pairs of natural numbers *) *)
+(* Definition print_set (S : Set) : string := *)
+(*   match S with *)
+(*   | {} => "∅" *)
+(*   | {x} => print_pair x *)
+(*   | _ => "{" ++ fold_right (fun x s => print_pair x ++ ", " ++ s) "" S ++ "}" *)
+(*   end. *)
+
+(* (* Combine A and B in pairs and print the result *) *)
+(* Eval compute in print_set (pair_sets A B). *)
